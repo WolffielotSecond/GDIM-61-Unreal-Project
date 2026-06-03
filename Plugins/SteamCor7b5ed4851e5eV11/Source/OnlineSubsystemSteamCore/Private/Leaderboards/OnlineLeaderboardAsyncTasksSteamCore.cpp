@@ -546,11 +546,7 @@ void FOnlineAsyncTaskSteamCoreRetrieveLeaderboardEntries::Tick()
 		{
 			const FOnlineLeaderboardsSteamCorePtr Leaderboards = StaticCastSharedPtr<FOnlineLeaderboardsSteamCore>(Subsystem->GetLeaderboardsInterface());
 			FScopeLock ScopeLock(&Leaderboards->m_LeaderboardMetadataLock);
-#if UE_VERSION_NEWER_THAN(5,5,4)
-			FString LeaderboardName = m_ReadObject->LeaderboardName;
-#else
 			FString LeaderboardName = m_ReadObject->LeaderboardName.ToString();
-#endif
 			if (const FLeaderboardMetadataSteam* Leaderboard = Leaderboards->GetLeaderboardMetadata(LeaderboardName))
 			{
 				LeaderboardHandle = Leaderboard->m_LeaderboardHandle;

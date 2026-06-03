@@ -50,7 +50,6 @@ public class OnlineSubsystemSteamCore : ModuleRules
                 "Voice",
                 "AudioCapture",
                 "AudioCaptureCore", 
-                "ApplicationCore",
 			}
 		);
 		

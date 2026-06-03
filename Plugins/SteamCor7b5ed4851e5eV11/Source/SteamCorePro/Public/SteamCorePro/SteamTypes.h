@@ -1107,10 +1107,7 @@ struct FSteamSessionResult
 {
 	GENERATED_BODY()
 public:
-	FSteamSessionResult()
-		: bPasswordedSession(false)
-	{
-	}
+	FSteamSessionResult() = default;
 
 	FSteamSessionResult(const FBlueprintSessionResult& InResult, const TArray<FSteamSessionSetting>& InSessionSettings)
 		: Result(InResult)

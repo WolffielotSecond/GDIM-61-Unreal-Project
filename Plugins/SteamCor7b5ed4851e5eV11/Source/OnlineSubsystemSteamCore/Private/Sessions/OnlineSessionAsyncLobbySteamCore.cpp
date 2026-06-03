@@ -261,9 +261,6 @@ void FOnlineAsyncTaskSteamCoreCreateLobby::Tick()
 				(!bFailedResult ? true : false) &&
 				((m_CallbackResults.m_eResult == k_EResultOK) ? true : false) &&
 				((m_CallbackResults.m_ulSteamIDLobby > 0 ? true : false));
-
-			LogSteamCoreVerbose("Create lobby bWasSuccessful: %d, bSuccessCallResult: %d, bFailedCall: %d, bFailedResult: %d, m_CallbackResults.m_eResult: %d", (bool)bWasSuccessful, bSuccessCallResult, bFailedCall, bFailedResult, (int32)m_CallbackResults.m_eResult);
-			
 		}
 	}
 	else
@@ -275,7 +272,7 @@ void FOnlineAsyncTaskSteamCoreCreateLobby::Tick()
 
 void FOnlineAsyncTaskSteamCoreCreateLobby::Finalize()
 {
-	LogSteamCoreVerbose("bWasSuccessful: %d", (bool)bWasSuccessful);
+	LogSteamCoreVerbose("");
 	const FOnlineSessionSteamCorePtr SessionInt = StaticCastSharedPtr<FOnlineSessionSteamCore>(Subsystem->GetSessionInterface());
 
 	if (bWasSuccessful)
@@ -559,13 +556,7 @@ void FOnlineAsyncTaskSteamCoreFindLobbiesBase::CreateQuery()
 		const FName Key = It.Key();
 		const FOnlineSessionSearchParam& SearchParam = It.Value();
 
-#if UE_VERSION_NEWER_THAN(5,5,4)
-		if (Key == SEARCH_DEDICATED_ONLY || Key == SETTING_MAPNAME || Key == SEARCH_EMPTY_SERVERS_ONLY || Key == SEARCH_SECURE_SERVERS_ONLY || Key == SEARCH_LOBBIES)
-#else
-PRAGMA_DISABLE_DEPRECATION_WARNINGS
-		if (Key == SEARCH_DEDICATED_ONLY || Key == SETTING_MAPNAME || Key == SEARCH_EMPTY_SERVERS_ONLY || Key == SEARCH_SECURE_SERVERS_ONLY || Key == SEARCH_PRESENCE || Key == SEARCH_LOBBIES)
-PRAGMA_ENABLE_DEPRECATION_WARNINGS
-#endif
+		if (Key == SEARCH_DEDICATED_ONLY || Key == SETTING_MAPNAME || Key == SEARCH_EMPTY_SERVERS_ONLY || Key == SEARCH_SECURE_SERVERS_ONLY || Key == SEARCH_PRESENCE)
 		{
 			continue;
 		}
@@ -597,13 +588,11 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 					{
 						int32 Value;
 						SearchParam.Data.GetValue(Value);
-						LogSteamCoreVerbose("AddRequestLobbyListNumericalFilter: %s (%i)", *KeyStr, Value);
 						m_SteamMatchmakingPtr->AddRequestLobbyListNumericalFilter(TCHAR_TO_UTF8(*KeyStr), Value, ToSteamLobbyCompareOp(SearchParam.ComparisonOp));
 						break;
 					}
 				case EOnlineKeyValuePairDataType::Float:
 					{
-						LogSteamCoreVerbose("AddRequestLobbyListStringFilter: %s (%s)", *KeyStr, *SearchParam.Data.ToString());
 						m_SteamMatchmakingPtr->AddRequestLobbyListStringFilter(TCHAR_TO_UTF8(*KeyStr), TCHAR_TO_UTF8(*SearchParam.Data.ToString()), ToSteamLobbyCompareOp(SearchParam.ComparisonOp));
 						break;
 					}
@@ -614,7 +603,6 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 						if (!Value.IsEmpty())
 						{
-							LogSteamCoreVerbose("AddRequestLobbyListStringFilter: %s (%s)", *KeyStr, *Value);
 							m_SteamMatchmakingPtr->AddRequestLobbyListStringFilter(TCHAR_TO_UTF8(*KeyStr), TCHAR_TO_UTF8(*Value), ToSteamLobbyCompareOp(SearchParam.ComparisonOp));
 						}
 						else
@@ -690,24 +678,18 @@ void FOnlineAsyncTaskSteamCoreFindLobbiesBase::Tick()
 		}
 	case EFindLobbiesState::RequestLobbyList:
 		{
-			LogSteamCoreVerbose("RequestLobbyList");
 			bool bFailedCall = false;
 			if (SteamUtilsPtr->IsAPICallCompleted(m_CallbackHandle, &bFailedCall))
 			{
 				bool bFailedResult;
 				const bool bSuccessCallResult = SteamUtilsPtr->GetAPICallResult(m_CallbackHandle, &m_CallbackResults, sizeof(m_CallbackResults), m_CallbackResults.k_iCallback, &bFailedResult);
 				bWasSuccessful = bSuccessCallResult && !bFailedCall && !bFailedResult;
-
-				LogSteamCoreVerbose("RequestLobbyList bWasSuccessful: %d", (bool)bWasSuccessful);
-				
 				if (bWasSuccessful)
 				{
 					const FOnlineSessionSteamCorePtr SessionInt = StaticCastSharedPtr<FOnlineSessionSteamCore>(Subsystem->GetSessionInterface());
 					check(SessionInt.IsValid());
-					
+
 					const int32 NumLobbies = static_cast<int32>(m_CallbackResults.m_nLobbiesMatching);
-					
-					LogSteamCoreVerbose("Found %i lobbies from Steam, parsing the results", NumLobbies);
 					for (int32 LobbyIdx = 0; LobbyIdx < NumLobbies; LobbyIdx++)
 					{
 						FUniqueNetIdSteamRef LobbyID = FUniqueNetIdSteam::Create(m_SteamMatchmakingPtr->GetLobbyByIndex(LobbyIdx));
@@ -716,8 +698,6 @@ void FOnlineAsyncTaskSteamCoreFindLobbiesBase::Tick()
 							m_LobbyIDs.Add(**LobbyID);
 						}
 					}
-
-					LogSteamCoreVerbose("Requesting lobby data");
 					m_FindLobbiesState = EFindLobbiesState::RequestLobbyData;
 				}
 				else
@@ -732,11 +712,8 @@ void FOnlineAsyncTaskSteamCoreFindLobbiesBase::Tick()
 			bWasSuccessful = true;
 			for (const CSteamID LobbyId : m_LobbyIDs)
 			{
-				LogSteamCoreVerbose("Requesting lobby data for lobby: %llu", (uint64)LobbyId.ConvertToUint64());
-				
 				if (!m_SteamMatchmakingPtr->RequestLobbyData(LobbyId))
 				{
-					LogSteamCoreVerbose("Failed to request lobby data");
 					bWasSuccessful = false;
 					m_FindLobbiesState = EFindLobbiesState::Finished;
 					break;
@@ -786,7 +763,7 @@ void FOnlineAsyncTaskSteamCoreFindLobbiesBase::Finalize()
 	LogSteamCoreVerbose("");
 	const FOnlineSessionSteamCorePtr SessionInt = StaticCastSharedPtr<FOnlineSessionSteamCore>(Subsystem->GetSessionInterface());
 
-	LogSteamCoreVerbose("Found %i lobbies, finalizing the search", SessionInt->m_PendingSearchLobbyIds.Num());
+	LogSteamCoreVerbose("Found %d lobbies, finalizing the search", SessionInt->m_PendingSearchLobbyIds.Num());
 
 	if (bWasSuccessful)
 	{

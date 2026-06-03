@@ -60,6 +60,7 @@ inline FString GetSteamAppIdFilename()
 	return FString::Printf(TEXT("%s%s"), FPlatformProcess::BaseDir(), STEAMAPPIDFILENAME);
 }
 
+#if !UE_BUILD_SHIPPING && !UE_BUILD_SHIPPING_WITH_EDITOR
 static bool WriteSteamAppIdToDisk(int32 SteamAppId)
 {
 	if (SteamAppId > 0)
@@ -101,11 +102,10 @@ static void DeleteSteamAppIdFromDisk()
 	}
 }
 
+#endif // !UE_BUILD_SHIPPING && !UE_BUILD_SHIPPING_WITH_EDITOR
+
 bool ConfigureSteamCoreInitDevOptions(bool& RequireRelaunch, int32& RelaunchAppId)
 {
-	bool bDisableSteamRelaunchInShipping = false;
-	GConfig->GetBool(TEXT("OnlineSubsystemSteamCore"), TEXT("bDisableSteamRelaunchInShipping"), bDisableSteamRelaunchInShipping, GEngineIni);
-	
 #if !UE_BUILD_SHIPPING && !UE_BUILD_SHIPPING_WITH_EDITOR
 	if (!GConfig->GetInt(TEXT("OnlineSubsystemSteamCore"), TEXT("SteamDevAppId"), RelaunchAppId, GEngineIni))
 	{
@@ -126,21 +126,7 @@ bool ConfigureSteamCoreInitDevOptions(bool& RequireRelaunch, int32& RelaunchAppI
 #else
 	RelaunchAppId = 0;
 	GConfig->GetInt(TEXT("OnlineSubsystemSteamCore"), TEXT("SteamAppId"), RelaunchAppId, GEngineIni);
-	
-	if (bDisableSteamRelaunchInShipping)
-	{
-		if (!WriteSteamAppIdToDisk(RelaunchAppId))
-		{
-			LogSteamCoreError("Could not create/update the steam_appid.txt file! Make sure the directory is writable and there isn't another instance using this file");
-			return false;
-		}
-
-		RequireRelaunch = false;
-	}
-	else
-	{
-		RequireRelaunch = true;
-	}
+	RequireRelaunch = true;
 #endif
 
 	return true;

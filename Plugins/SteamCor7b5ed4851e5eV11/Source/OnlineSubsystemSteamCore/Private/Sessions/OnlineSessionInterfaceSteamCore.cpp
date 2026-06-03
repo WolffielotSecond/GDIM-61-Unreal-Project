@@ -552,17 +552,7 @@ uint32 FOnlineSessionSteamCore::FindInternetSession(const TSharedRef<FOnlineSess
 {
 	LogSteamCoreVerbose("");
 	bool PresenceSearch = false;
-	bool LobbiesSearch = false;
-
-	SearchSettings->QuerySettings.Get(SEARCH_LOBBIES, LobbiesSearch);
-
-#if !UE_VERSION_NEWER_THAN(5,5,4)
-PRAGMA_DISABLE_DEPRECATION_WARNINGS
-	SearchSettings->QuerySettings.Get(SEARCH_PRESENCE, PresenceSearch);
-PRAGMA_ENABLE_DEPRECATION_WARNINGS		
-#endif
-
-	if (PresenceSearch || LobbiesSearch)
+	if (SearchSettings->QuerySettings.Get(SEARCH_PRESENCE, PresenceSearch) && PresenceSearch)
 	{
 		FOnlineAsyncTaskSteamCoreFindLobbies* NewTask = new FOnlineAsyncTaskSteamCoreFindLobbies(m_SteamSubsystem, SearchSettings);
 		m_SteamSubsystem->QueueAsyncTask(NewTask);
@@ -582,17 +572,7 @@ uint32 FOnlineSessionSteamCore::FindLANSession(const TSharedRef<FOnlineSessionSe
 	uint32 Return = ONLINE_IO_PENDING;
 
 	bool PresenceSearch = false;
-	bool LobbiesSearch = false;
-
-	SearchSettings->QuerySettings.Get(SEARCH_LOBBIES, LobbiesSearch);
-
-#if !UE_VERSION_NEWER_THAN(5,5,4)
-	PRAGMA_DISABLE_DEPRECATION_WARNINGS
-	SearchSettings->QuerySettings.Get(SEARCH_PRESENCE, PresenceSearch);
-	PRAGMA_ENABLE_DEPRECATION_WARNINGS
-#endif
-
-	if (PresenceSearch || LobbiesSearch)
+	if (SearchSettings->QuerySettings.Get(SEARCH_PRESENCE, PresenceSearch) && PresenceSearch)
 	{
 		if (!m_LANSession)
 		{

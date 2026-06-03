@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0.8",
+	"VersionName": "1.0.6.6",
 	"FriendlyName": "SteamCore PRO",
 	"Description": "Steamworks Plugin",
 	"Category": "eelDev Plugins",
@@ -10,7 +10,7 @@
 	"DocsURL": "https://steamcore-pro.eeldev.com/",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/459e1c72939b4ead8b5132187808a3e7",
 	"SupportURL": "https://eeldev.com",
-	"EngineVersion": "5.7.0",
+	"EngineVersion": "5.6.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [

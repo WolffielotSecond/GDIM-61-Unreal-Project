@@ -48,8 +48,7 @@ public class SteamCorePro : ModuleRules
 				"HTTP", 
 				"OnlineSubsystemSteamCore",
 				"AudioExtensions", 
-				"AudioCapture",
-				"ApplicationCore"
+				"AudioCapture"
 			}
 		);
 		

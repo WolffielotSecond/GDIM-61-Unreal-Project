@@ -112,46 +112,6 @@ public:
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-//		USteamCoreProCreateSessionExtra
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-UCLASS()
-class STEAMCOREPRO_API USteamCoreProCreateSessionExtra : public USteamCoreProAsyncAction
-{
-	GENERATED_BODY()
-public:
-	UPROPERTY(BlueprintAssignable)
-	FEmptyOnlineDelegate OnSuccess;
-	UPROPERTY(BlueprintAssignable)
-	FEmptyOnlineDelegate OnFailure;
-public:
-	USteamCoreProCreateSessionExtra();
-	/**
-	* Creates an online session
-	* 
-	* Automatically detects if we're running a dedicated or listen server
-	*
-	* Listen servers will create a Lobby Session, use "FindSteamCoreProSession" to find Listen Servers
-	*
-	*    @param SessionPassword						Optional session password
-	*    @param SessionName							Name of our session
-	*    @param MaxPlayers							Number of public connections
-	*    @param bUseLAN								Used for LAN server
-	*/
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject", BlueprintInternalUseOnly = "true", AutoCreateRefTerm = "SessionSettings", DisplayName = "Create SteamCore PRO Session (Extra)"), Category = "SteamCore|Matchmaking|Async")
-	static USteamCoreProCreateSessionExtra* CreateSteamCoreProSessionExtra(UObject* WorldContextObject, TMap<FString, FSteamSessionSetting> SessionSettings, FString SessionPassword, FString SessionName = "SteamCoreProSession", int32 MaxPlayers = 5, bool bUseLAN = false, bool bAllowInvites = true, bool bUsesPresence = true, bool bAllowJoinViaPresence = true, bool bAllowJoinViaPresenceFriendsOnly = false, bool bAntiCheatProtected = false, bool bUsesStats = false, bool bShouldAdvertise = true, bool bUseLobbiesVoiceChatIfAvailable = true);
-protected:
-	FOnlineSessionSettings m_SessionSettings;
-	IOnlineSessionPtr m_SessionsPtr;
-private:
-	FOnCreateSessionCompleteDelegate Delegate;
-	FDelegateHandle DelegateHandle;
-public:
-	virtual void Activate() override;
-public:
-	void OnCompleted(FName SessionName, bool bSuccessful);
-};
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 //		USteamCoreProCreateSession
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 UCLASS()
@@ -175,10 +135,13 @@ public:
 	*    @param SessionPassword						Optional session password
 	*    @param SessionName							Name of our session
 	*    @param MaxPlayers							Number of public connections
+	*    @param bUsesPresence						Create a lobby for the session (disabled for dedicated servers)
 	*    @param bUseLAN								Used for LAN server
+	*    @param bUseLobbiesVoiceChatIfAvailable		(4.27+ only, Whether to create (and auto join) a voice chat room for the lobby, if the platform supports it)
+	*    @param	Timeout								How long we wait for this function to finish before aborting
 	*/
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject", BlueprintInternalUseOnly = "true", AutoCreateRefTerm = "SessionSettings", DisplayName = "Create SteamCore PRO Session"), Category = "SteamCore|Matchmaking|Async")
-	static USteamCoreProCreateSession* CreateSteamCoreProSession(UObject* WorldContextObject, TMap<FString, FSteamSessionSetting> SessionSettings, FString SessionPassword, FString SessionName = "SteamCoreProSession", int32 MaxPlayers = 5, bool bUseLAN = false, bool bAllowJoinViaPresence = true, bool bAntiCheatProtected = false, bool bShouldAdvertise = true);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject", BlueprintInternalUseOnly = "true", AutoCreateRefTerm = "SessionSettings"), Category = "SteamCore|Matchmaking|Async")
+	static USteamCoreProCreateSession* CreateSteamCoreProSession(UObject* WorldContextObject, TMap<FString, FSteamSessionSetting> SessionSettings, FString SessionPassword, FString SessionName = "SteamCoreProSession", int32 MaxPlayers = 5, bool bUseLAN = false, bool bAllowInvites = true, bool bUsesPresence = true, bool bAllowJoinViaPresence = true, bool bAllowJoinViaPresenceFriendsOnly = false, bool bAntiCheatProtected = false, bool bUsesStats = false, bool bShouldAdvertise = true, bool bUseLobbiesVoiceChatIfAvailable = true, float Timeout = 10.f);
 protected:
 	FOnlineSessionSettings m_SessionSettings;
 	IOnlineSessionPtr m_SessionsPtr;

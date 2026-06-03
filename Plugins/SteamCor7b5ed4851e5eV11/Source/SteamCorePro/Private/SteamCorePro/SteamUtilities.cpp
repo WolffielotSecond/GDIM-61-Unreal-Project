@@ -16,7 +16,6 @@
 #include "Interfaces/OnlineIdentityInterface.h"
 #include "SteamCoreProPluginPrivatePCH.h"
 #include "Online.h"
-#include "GenericPlatform/GenericPlatformInputDeviceMapper.h"
 #include "Interfaces/OnlineFriendsInterface.h"
 #include "Misc/PackageName.h"
 #include "Net/OnlineEngineInterface.h"
@@ -132,20 +131,12 @@ void USteamCoreProAsyncActionListenForControllerChange::Activate()
 {
 	Super::Activate();
 
-#if UE_VERSION_NEWER_THAN(5,5,4)
-	IPlatformInputDeviceMapper::Get().GetOnInputDeviceConnectionChange().AddWeakLambda(this, [this](EInputDeviceConnectionState NewConnectionState, FPlatformUserId PlatformUserId, FInputDeviceId InputDeviceId)
-	{
-		bool bIsConnected = NewConnectionState == EInputDeviceConnectionState::Connected;
-		HandleCallback(bIsConnected, PlatformUserId, InputDeviceId.GetId());
-	});
-#else
-PRAGMA_DISABLE_DEPRECATION_WARNINGS
+	PRAGMA_DISABLE_DEPRECATION_WARNINGS
 	FCoreDelegates::OnControllerConnectionChange.AddWeakLambda(this, [this](bool bIsConnected, FPlatformUserId PlatformUserId, int32 UserId)
 	{
 		HandleCallback(bIsConnected, PlatformUserId, UserId);
 	});
-PRAGMA_DISABLE_DEPRECATION_WARNINGS
-#endif
+	PRAGMA_ENABLE_DEPRECATION_WARNINGS
 }
 
 FSteamItemInstanceID USteamUtilities::MakeSteamItemInstanceID(int64 Value)

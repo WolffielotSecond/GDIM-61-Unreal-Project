@@ -442,9 +442,8 @@ USteamCoreAuthComponentModuleInterface::USteamCoreAuthComponentModuleInterface(c
 TSharedPtr<HandlerComponent> USteamCoreAuthComponentModuleInterface::CreateComponentInstance(FString& Options)
 {
 	LogSteamCoreVerbose("");
-	TSharedPtr<HandlerComponent> Result = nullptr;
 #if WITH_STEAMCORE
-	Result = MakeShareable(new FSteamCoreAuthHandlerComponent);
+	return MakeShareable(new FSteamCoreAuthHandlerComponent);
 #endif
-	return Result;
+	return nullptr;
 }

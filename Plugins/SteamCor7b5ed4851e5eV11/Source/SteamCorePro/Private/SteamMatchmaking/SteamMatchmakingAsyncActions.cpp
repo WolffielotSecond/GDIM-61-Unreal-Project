@@ -191,160 +191,6 @@ void USteamCoreProMatchmakingAsyncActionJoinLobby::HandleCallback(const FJoinLob
 #endif
 }
 
-USteamCoreProCreateSessionExtra::USteamCoreProCreateSessionExtra()
-	: Delegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCompleted))
-{
-	
-}
-
-USteamCoreProCreateSessionExtra* USteamCoreProCreateSessionExtra::CreateSteamCoreProSessionExtra(UObject* WorldContextObject, TMap<FString, FSteamSessionSetting> SessionSettings, FString SessionPassword, FString SessionName, int32 MaxPlayers, bool bUseLAN, bool bAllowInvites, bool bUsesPresence, bool bAllowJoinViaPresence, bool bAllowJoinViaPresenceFriendsOnly, bool bAntiCheatProtected, bool bUsesStats, bool bShouldAdvertise, bool bUseLobbiesVoiceChatIfAvailable)
-{
-	LogSteamCoreVerbose("");
-
-#if WITH_STEAMCORE
-	if (USteamCoreProSubsystem* Subsystem = USteamCoreProSubsystem::Get())
-	{
-		const auto AsyncObject = NewObject<USteamCoreProCreateSessionExtra>();
-		AsyncObject->RegisterWithGameInstance(WorldContextObject);
-
-		const bool bIsDedicated = IsRunningDedicatedServer();
-
-		AsyncObject->m_SessionSettings.NumPublicConnections = MaxPlayers;
-		AsyncObject->m_SessionSettings.NumPrivateConnections = 0;
-		AsyncObject->m_SessionSettings.bShouldAdvertise = bShouldAdvertise;
-		AsyncObject->m_SessionSettings.bAllowJoinInProgress = true;
-		AsyncObject->m_SessionSettings.bIsLANMatch = bUseLAN;
-		AsyncObject->m_SessionSettings.bAllowJoinViaPresence = bAllowJoinViaPresence;
-		AsyncObject->m_SessionSettings.bIsDedicated = bIsDedicated;
-		AsyncObject->m_SessionSettings.bUsesPresence = !bIsDedicated;
-		AsyncObject->m_SessionSettings.bAllowJoinViaPresenceFriendsOnly = bAllowJoinViaPresenceFriendsOnly;
-		AsyncObject->m_SessionSettings.bAntiCheatProtected = bAntiCheatProtected;
-		AsyncObject->m_SessionSettings.bUsesStats = bUsesStats;
-		AsyncObject->m_SessionSettings.bShouldAdvertise = bShouldAdvertise;
-		AsyncObject->m_SessionSettings.bAllowInvites = bAllowInvites;
-		AsyncObject->m_SessionSettings.bUseLobbiesIfAvailable = !bIsDedicated;
-		AsyncObject->m_SessionSettings.bUseLobbiesVoiceChatIfAvailable = (bUseLobbiesVoiceChatIfAvailable && !bIsDedicated);
-
-		for (auto& Element : SessionSettings)
-		{
-			if (Element.Key.Len() == 0)
-			{
-				continue;
-			}
-
-			FOnlineSessionSetting Setting;
-			Setting.AdvertisementType = EOnlineDataAdvertisementType::ViaOnlineService;
-
-			if (Element.Value.m_Data.IsType<int32>())
-			{
-				Setting.Data.SetValue(Element.Value.m_Data.Get<int32>());
-			}
-			else if (Element.Value.m_Data.IsType<FString>())
-			{
-				Setting.Data.SetValue(Element.Value.m_Data.Get<FString>());
-			}
-
-			AsyncObject->m_SessionSettings.Set(FName(*Element.Key), Setting);
-		}
-
-		FOnlineSessionSetting Setting;
-		Setting.AdvertisementType = EOnlineDataAdvertisementType::ViaOnlineService;
-		Setting.Data.SetValue(*SessionName);
-
-		AsyncObject->m_SessionSettings.Set("OWNINGNAME", Setting);
-
-		if (SessionPassword.Len() > 0)
-		{
-			FOnlineSessionSetting SessionPasswordSetting;
-			SessionPasswordSetting.AdvertisementType = EOnlineDataAdvertisementType::ViaOnlineService;
-			SessionPasswordSetting.Data.SetValue(*FMD5::HashAnsiString(*SessionPassword));
-			AsyncObject->m_SessionSettings.Set("PASSWORD", SessionPasswordSetting);
-		}
-
-		return AsyncObject;
-	}
-#endif
-
-	return nullptr;
-}
-
-void USteamCoreProCreateSessionExtra::Activate()
-{
-	LogSteamCoreVerbose("");
-
-	bool bSuccess = false;
-
-#if WITH_STEAMCORE
-	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get(STEAMCORE_SUBSYSTEM);
-
-	if (!Subsystem)
-	{
-		LogSteamCoreWarn("OnlineSubystemSteamCore is DISABLED. Will try using the current OnlineSubsystem.");
-		Subsystem = IOnlineSubsystem::Get();
-	}
-
-	if (Subsystem)
-	{
-		const IOnlineSessionPtr SessionInt = Subsystem->GetSessionInterface();
-
-		if (SessionInt.IsValid())
-		{
-			DelegateHandle = SessionInt->AddOnCreateSessionCompleteDelegate_Handle(Delegate);
-
-			if (SessionInt->CreateSession(0, NAME_GameSession, m_SessionSettings))
-			{
-				bSuccess = true;
-			}
-		}
-	}
-	else
-	{
-		bSuccess = false;
-		LogSteamCoreError("No subsystem was found!");
-	}
-
-	if (!bSuccess)
-	{
-		OnCompleted(NAME_GameSession, false);
-	}
-#endif
-}
-
-void USteamCoreProCreateSessionExtra::OnCompleted(FName SessionName, bool bSuccessful)
-{
-	LogSteamCoreVerbose("Create Session %s Complete! %d", *SessionName.ToString(), bSuccessful);
-
-	bool bSuccess = false;
-
-#if WITH_STEAMCORE
-
-	if (const IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get())
-	{
-		const IOnlineSessionPtr SessionInt = Subsystem->GetSessionInterface();
-
-		if (SessionInt.IsValid() && bSuccessful)
-		{
-			SessionInt->StartSession(NAME_GameSession);
-
-			bSuccess = true;
-		}
-
-		SessionInt->ClearOnCreateSessionCompleteDelegate_Handle(DelegateHandle);
-	}
-
-	if (bSuccess)
-	{
-		OnSuccess.Broadcast();
-	}
-	else
-	{
-		OnFailure.Broadcast();
-	}
-#endif
-
-	SetReadyToDestroy();
-}
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 //		USteamCoreProCreateSession
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -353,7 +199,7 @@ USteamCoreProCreateSession::USteamCoreProCreateSession()
 {
 }
 
-USteamCoreProCreateSession* USteamCoreProCreateSession::CreateSteamCoreProSession(UObject* WorldContextObject, TMap<FString, FSteamSessionSetting> SessionSettings, FString SessionPassword, FString SessionName, int32 MaxPlayers, bool bUseLAN, bool bAllowJoinViaPresence, bool bAntiCheatProtected, bool bShouldAdvertise)
+USteamCoreProCreateSession* USteamCoreProCreateSession::CreateSteamCoreProSession(UObject* WorldContextObject, TMap<FString, FSteamSessionSetting> SessionSettings, FString SessionPassword, FString SessionName, int32 MaxPlayers, bool bUseLAN, bool bAllowInvites, bool bUsesPresence, bool bAllowJoinViaPresence, bool bAllowJoinViaPresenceFriendsOnly, bool bAntiCheatProtected, bool bUsesStats, bool bShouldAdvertise, bool bUseLobbiesVoiceChatIfAvailable, float Timeout)
 {
 	LogSteamCoreVerbose("");
 
@@ -372,14 +218,16 @@ USteamCoreProCreateSession* USteamCoreProCreateSession::CreateSteamCoreProSessio
 		AsyncObject->m_SessionSettings.bIsLANMatch = bUseLAN;
 		AsyncObject->m_SessionSettings.bAllowJoinViaPresence = bAllowJoinViaPresence;
 		AsyncObject->m_SessionSettings.bIsDedicated = bIsDedicated;
-		AsyncObject->m_SessionSettings.bUsesPresence = !bIsDedicated;
-		AsyncObject->m_SessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
+		AsyncObject->m_SessionSettings.bUsesPresence = (bUsesPresence && !bIsDedicated);
+		AsyncObject->m_SessionSettings.bAllowJoinViaPresenceFriendsOnly = bAllowJoinViaPresenceFriendsOnly;
 		AsyncObject->m_SessionSettings.bAntiCheatProtected = bAntiCheatProtected;
-		AsyncObject->m_SessionSettings.bUsesStats = false;
+		AsyncObject->m_SessionSettings.bUsesStats = bUsesStats;
 		AsyncObject->m_SessionSettings.bShouldAdvertise = bShouldAdvertise;
-		AsyncObject->m_SessionSettings.bAllowInvites = false;
-		AsyncObject->m_SessionSettings.bUseLobbiesIfAvailable = !bIsDedicated;
-		AsyncObject->m_SessionSettings.bUseLobbiesVoiceChatIfAvailable = !bIsDedicated;
+		AsyncObject->m_SessionSettings.bAllowInvites = bAllowInvites;
+#if UE_VERSION_NEWER_THAN(4, 26, 2)
+		AsyncObject->m_SessionSettings.bUseLobbiesIfAvailable = (bUsesPresence && !bIsDedicated);
+		AsyncObject->m_SessionSettings.bUseLobbiesVoiceChatIfAvailable = (bUseLobbiesVoiceChatIfAvailable && !bIsDedicated);
+#endif
 
 		for (auto& Element : SessionSettings)
 		{
@@ -563,12 +411,7 @@ void USteamCoreProFindSession::Activate()
 
 			if (m_ServerType == ESteamSessionFindType::Listen)
 			{
-				m_Settings.Set(SEARCH_LOBBIES, true, EOnlineComparisonOp::Equals);
-#if !UE_VERSION_NEWER_THAN(5,5,4)
-PRAGMA_DISABLE_DEPRECATION_WARNINGS
 				m_Settings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-PRAGMA_ENABLE_DEPRECATION_WARNINGS
-#endif
 			}
 			else
 			{
