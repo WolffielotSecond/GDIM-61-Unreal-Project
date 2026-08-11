@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{E82DB3A7-2E30-44A3-ADE4-2048B67FF237}" SchemaVersion="133">
+	<Containers>
+		<WorkUnit Name="SFX_Player" ID="{E82DB3A7-2E30-44A3-ADE4-2048B67FF237}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="Combat" ID="{CE2E8B7F-66D5-4D41-9651-FD107C8131F9}" ShortID="370904558">
+					<ChildrenList>
+						<Sound Name="hitblood1" ID="{ED2A2034-E516-4E08-B3CE-2EF8F9B4E46D}" ShortID="935199004">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="hitblood1" ID="{F561B7AD-A4B8-460B-A45A-6624A5868F4D}">
+									<Language>SFX</Language>
+									<AudioFile>hitblood1.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="1064691980"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ActiveSourceList>
+								<ActiveSource Name="hitblood1" ID="{F561B7AD-A4B8-460B-A45A-6624A5868F4D}" Platform="Linked"/>
+							</ActiveSourceList>
+						</Sound>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
+	</Containers>
+</WwiseDocument>

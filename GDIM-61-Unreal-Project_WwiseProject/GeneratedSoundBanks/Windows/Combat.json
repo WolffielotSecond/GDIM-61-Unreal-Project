@@ -1,0 +1,47 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2764240573",
+    "Type": "User",
+    "GUID": "{3F5A61A2-977A-4A0F-94B6-A0CE16168312}",
+    "Language": "SFX",
+    "Hash": "{5F78AC13-F904-E58A-B945-30E2783708CA}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Combat",
+    "ShortName": "Combat",
+    "Path": "Combat.bnk",
+    "Media": [
+     {
+      "Id": "1064691980",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "hitblood1.wav",
+      "CachePath": "3C/{3CDAFCBF-80A0-E376-0C4F-0D1D7826ED65}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "4249326346",
+      "Name": "Knife_Hit",
+      "ObjectPath": "\\Events\\Player Audio Events\\Combat\\Knife_Hit",
+      "GUID": "{6847C395-D011-47E9-BE3F-7B1A24DDDEB4}",
+      "DurationType": "OneShot",
+      "DurationMin": "1.0694584",
+      "DurationMax": "1.0694584",
+      "MediaRefs": [
+       {
+        "Id": "1064691980"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{9F650F42-D40E-EB93-9619-56CD15C20F58}"
+ }
+}

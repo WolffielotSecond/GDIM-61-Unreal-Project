@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{5CB465D0-83FF-4486-B553-F981067B09C1}" SchemaVersion="133">
+	<Events>
+		<WorkUnit Name="Player Audio Events" ID="{5CB465D0-83FF-4486-B553-F981067B09C1}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="Combat" ID="{F55EF004-EF63-4A56-A345-51E4C1387D93}" ShortID="988566407">
+					<ChildrenList>
+						<Event Name="Knife_Hit" ID="{6847C395-D011-47E9-BE3F-7B1A24DDDEB4}">
+							<ChildrenList>
+								<Action Name="" ID="{173BE472-64B7-4EE8-9A6E-34F4D5B9E948}" ShortID="743921893">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="hitblood1" ID="{ED2A2034-E516-4E08-B3CE-2EF8F9B4E46D}" WorkUnitID="{E82DB3A7-2E30-44A3-ADE4-2048B67FF237}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
+	</Events>
+</WwiseDocument>

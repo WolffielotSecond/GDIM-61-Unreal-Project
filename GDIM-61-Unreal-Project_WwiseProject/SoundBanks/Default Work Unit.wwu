@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{CAF338CF-5096-4DB6-9AD9-E80F8207260F}" SchemaVersion="133">
+	<SoundBanks>
+		<WorkUnit Name="Default Work Unit" ID="{CAF338CF-5096-4DB6-9AD9-E80F8207260F}" PersistMode="Standalone">
+			<ChildrenList>
+				<SoundBank Name="Combat" ID="{3F5A61A2-977A-4A0F-94B6-A0CE16168312}">
+					<ObjectInclusionList>
+						<ObjectRef Name="Knife_Hit" ID="{6847C395-D011-47E9-BE3F-7B1A24DDDEB4}" WorkUnitID="{5CB465D0-83FF-4486-B553-F981067B09C1}" Origin="Manual" Filter="7"/>
+					</ObjectInclusionList>
+					<ObjectExclusionList/>
+					<GameSyncExclusionList/>
+				</SoundBank>
+			</ChildrenList>
+		</WorkUnit>
+	</SoundBanks>
+</WwiseDocument>

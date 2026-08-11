@@ -1,0 +1,6 @@
+Event	ID	Name			Wwise Object Path	Notes
+	4249326346	Knife_Hit			\Player Audio Events\Combat\Knife_Hit	
+
+In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
+	1064691980	hitblood1	.cache\3C\{3CDAFCBF-80A0-E376-0C4F-0D1D7826ED65}.wem		\Containers\SFX_Player\Combat\hitblood1		102764
+
