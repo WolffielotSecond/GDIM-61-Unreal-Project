@@ -17,12 +17,39 @@ void UTAInputIconSubsystem::SetCurrentDeviceType(EInputDeviceType NewType)
 	CurrentDeviceType = NewType;
 }
 
+void UTAInputIconSubsystem::NotifyInputKey(const FKey& Key)
+{
+	if (!Key.IsValid())
+	{
+		return;
+	}
+
+	if (Key.IsGamepadKey())
+	{
+		if (CurrentDeviceType != EInputDeviceType::Xbox)
+		{
+			CurrentDeviceType = EInputDeviceType::Xbox;
+			UE_LOG(LogTemp, Log, TEXT("Input device -> Xbox"));
+		}
+	}
+	else
+	{
+		// 键盘或鼠标
+		if (CurrentDeviceType != EInputDeviceType::KeyboardMouse)
+		{
+			CurrentDeviceType = EInputDeviceType::KeyboardMouse;
+			UE_LOG(LogTemp, Log, TEXT("Input device -> KeyboardMouse"));
+		}
+	}
+}
+
 FString UTAInputIconSubsystem::KeyToAssetName(FKey Key) const
 {
 	if (!Key.IsValid())
 	{
 		return FString();
 	}
+
 	// 特殊按键
 	if (Key == EKeys::SpaceBar) return TEXT("space");
 	if (Key == EKeys::Escape) return TEXT("esc");
@@ -42,12 +69,11 @@ FString UTAInputIconSubsystem::KeyToAssetName(FKey Key) const
 	if (Key == EKeys::ThumbMouseButton) return TEXT("side_up");
 	if (Key == EKeys::ThumbMouseButton2) return TEXT("side_down");
 
-	// Xbox
+	// Xbox / 通用手柄
 	if (Key == EKeys::Gamepad_FaceButton_Bottom) return TEXT("a");
 	if (Key == EKeys::Gamepad_FaceButton_Right) return TEXT("b");
 	if (Key == EKeys::Gamepad_FaceButton_Left) return TEXT("x");
 	if (Key == EKeys::Gamepad_FaceButton_Top) return TEXT("y");
-
 	if (Key == EKeys::Gamepad_LeftShoulder) return TEXT("lb");
 	if (Key == EKeys::Gamepad_RightShoulder) return TEXT("rb");
 	if (Key == EKeys::Gamepad_LeftTrigger) return TEXT("lt");
@@ -135,15 +161,12 @@ UTexture2D* UTAInputIconSubsystem::GetIconForAction(UInputAction* Action) const
 		return nullptr;
 	}
 
-	// 查询该 Action 当前绑定的所有按键
 	const TArray<FKey> MappedKeys = InputSubsystem->QueryKeysMappedToAction(Action);
-
 	if (MappedKeys.Num() == 0)
 	{
 		return nullptr;
 	}
 
-	// 根据当前设备类型优先选择合适的按键
 	for (const FKey& Key : MappedKeys)
 	{
 		if (!Key.IsValid())
@@ -167,38 +190,5 @@ UTexture2D* UTAInputIconSubsystem::GetIconForAction(UInputAction* Action) const
 		}
 	}
 
-	// 如果没有匹配当前设备的按键，退回第一个
 	return GetIconForKey(MappedKeys[0]);
-}
-
-void UTAInputIconSubsystem::NotifyInputKey(const FKey& Key)
-{
-	if (!Key.IsValid())
-	{
-		return;
-	}
-
-	UpdateDeviceTypeFromKey(Key);
-}
-
-void UTAInputIconSubsystem::UpdateDeviceTypeFromKey(const FKey& Key)
-{
-	EInputDeviceType NewType = CurrentDeviceType;
-
-	if (Key.IsGamepadKey())
-	{
-		// 目前先统一识别为 Xbox
-		NewType = EInputDeviceType::Xbox;
-	}
-	else
-	{
-		// 键盘或鼠标
-		NewType = EInputDeviceType::KeyboardMouse;
-	}
-
-	if (NewType != CurrentDeviceType)
-	{
-		CurrentDeviceType = NewType;
-		UE_LOG(LogTemp, Log, TEXT("Input device changed to: %d"), (int32)CurrentDeviceType);
-	}
 }

@@ -4,43 +4,56 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Framework/Application/IInputProcessor.h"
 #include "The_AwakeningPlayerController.generated.h"
 
 class UInputMappingContext;
 class UUserWidget;
 
 /**
- *  Basic PlayerController class for a third person game
- *  Manages input mappings
+ * 输入设备检测器
  */
+class FTAInputDeviceDetector : public IInputProcessor
+{
+public:
+	FTAInputDeviceDetector(class AThe_AwakeningPlayerController* InOwner)
+		: Owner(InOwner)
+	{
+	}
+
+	virtual void Tick(const float DeltaTime, FSlateApplication& SoftApp, TSharedRef<ICursor> Cursor) override {}
+
+	virtual bool HandleKeyDownEvent(FSlateApplication& SoftApp, const FKeyEvent& InKeyEvent) override;
+	virtual bool HandleMouseButtonDownEvent(FSlateApplication& SoftApp, const FPointerEvent& MouseEvent) override;
+	virtual bool HandleMouseMoveEvent(FSlateApplication& SoftApp, const FPointerEvent& MouseEvent) override;
+
+private:
+	AThe_AwakeningPlayerController* Owner = nullptr;
+};
+
 UCLASS(abstract)
 class AThe_AwakeningPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
-protected:
 
-	/** Input Mapping Contexts */
-	UPROPERTY(EditAnywhere, Category ="Input|Input Mappings")
+public:
+	void NotifyRawInputKey(const FKey& Key);
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Input|Input Mappings")
 	TArray<UInputMappingContext*> DefaultMappingContexts;
 
-	/** Input Mapping Contexts */
-	UPROPERTY(EditAnywhere, Category="Input|Input Mappings")
+	UPROPERTY(EditAnywhere, Category = "Input|Input Mappings")
 	TArray<UInputMappingContext*> MobileExcludedMappingContexts;
 
-	/** Mobile controls widget to spawn */
-	UPROPERTY(EditAnywhere, Category="Input|Touch Controls")
+	UPROPERTY(EditAnywhere, Category = "Input|Touch Controls")
 	TSubclassOf<UUserWidget> MobileControlsWidgetClass;
 
-	/** Pointer to the mobile controls widget */
 	TObjectPtr<UUserWidget> MobileControlsWidget;
 
-	/** Gameplay initialization */
+	TSharedPtr<FTAInputDeviceDetector> InputDeviceDetector;
+
 	virtual void BeginPlay() override;
-
-	/** Input mapping context setup */
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;
-
-	virtual bool InputKey(const FInputKeyParams& Params) override;
-
 };
