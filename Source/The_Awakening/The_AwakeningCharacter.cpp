@@ -76,21 +76,47 @@ void AThe_AwakeningCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateInteractTarget();
+	UpdateMovementInput();
 }
 
 void AThe_AwakeningCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// Jumping
+		// Jump
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::Move);
-		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::Look);
+		// 手柄摇杆移动
+		if (MoveAction)
+		{
+			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::Move);
+		}
 
-		// Looking
+		// 键盘四方向
+		if (MoveForwardAction)
+		{
+			EnhancedInputComponent->BindAction(MoveForwardAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::OnMoveForward);
+			EnhancedInputComponent->BindAction(MoveForwardAction, ETriggerEvent::Completed, this, &AThe_AwakeningCharacter::OnMoveForwardReleased);
+		}
+		if (MoveBackwardAction)
+		{
+			EnhancedInputComponent->BindAction(MoveBackwardAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::OnMoveBackward);
+			EnhancedInputComponent->BindAction(MoveBackwardAction, ETriggerEvent::Completed, this, &AThe_AwakeningCharacter::OnMoveBackwardReleased);
+		}
+		if (MoveLeftAction)
+		{
+			EnhancedInputComponent->BindAction(MoveLeftAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::OnMoveLeft);
+			EnhancedInputComponent->BindAction(MoveLeftAction, ETriggerEvent::Completed, this, &AThe_AwakeningCharacter::OnMoveLeftReleased);
+		}
+		if (MoveRightAction)
+		{
+			EnhancedInputComponent->BindAction(MoveRightAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::OnMoveRight);
+			EnhancedInputComponent->BindAction(MoveRightAction, ETriggerEvent::Completed, this, &AThe_AwakeningCharacter::OnMoveRightReleased);
+		}
+
+		// Look
+		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::Look);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AThe_AwakeningCharacter::Look);
 
 		// Interact
@@ -99,16 +125,72 @@ void AThe_AwakeningCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AThe_AwakeningCharacter::TryInteract);
 		}
 	}
-	else
-	{
-		UE_LOG(LogThe_Awakening, Error, TEXT("'%s' Failed to find an Enhanced Input component!"), *GetNameSafe(this));
-	}
 }
 
 void AThe_AwakeningCharacter::Move(const FInputActionValue& Value)
 {
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	// 手柄摇杆直接使用
+	const FVector2D MovementVector = Value.Get<FVector2D>();
 	DoMove(MovementVector.X, MovementVector.Y);
+}
+
+void AThe_AwakeningCharacter::OnMoveForward(const FInputActionValue& Value)
+{
+	bMoveForward = true;
+}
+
+void AThe_AwakeningCharacter::OnMoveBackward(const FInputActionValue& Value)
+{
+	bMoveBackward = true;
+}
+
+void AThe_AwakeningCharacter::OnMoveLeft(const FInputActionValue& Value)
+{
+	bMoveLeft = true;
+}
+
+void AThe_AwakeningCharacter::OnMoveRight(const FInputActionValue& Value)
+{
+	bMoveRight = true;
+}
+
+void AThe_AwakeningCharacter::OnMoveForwardReleased(const FInputActionValue& Value)
+{
+	bMoveForward = false;
+}
+
+void AThe_AwakeningCharacter::OnMoveBackwardReleased(const FInputActionValue& Value)
+{
+	bMoveBackward = false;
+}
+
+void AThe_AwakeningCharacter::OnMoveLeftReleased(const FInputActionValue& Value)
+{
+	bMoveLeft = false;
+}
+
+void AThe_AwakeningCharacter::OnMoveRightReleased(const FInputActionValue& Value)
+{
+	bMoveRight = false;
+}
+
+void AThe_AwakeningCharacter::UpdateMovementInput()
+{
+	float FinalForward = 0.f;
+	float FinalRight = 0.f;
+
+	if (bMoveForward)  FinalForward += 1.f;
+	if (bMoveBackward) FinalForward -= 1.f;
+	if (bMoveRight)    FinalRight += 1.f;
+	if (bMoveLeft)     FinalRight -= 1.f;
+
+	FinalForward = FMath::Clamp(FinalForward, -1.f, 1.f);
+	FinalRight = FMath::Clamp(FinalRight, -1.f, 1.f);
+
+	if (!FMath::IsNearlyZero(FinalForward) || !FMath::IsNearlyZero(FinalRight))
+	{
+		DoMove(FinalRight, FinalForward);
+	}
 }
 
 void AThe_AwakeningCharacter::Look(const FInputActionValue& Value)

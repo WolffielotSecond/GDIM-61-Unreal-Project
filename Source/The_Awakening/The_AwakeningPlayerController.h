@@ -41,4 +41,6 @@ protected:
 	/** Input mapping context setup */
 	virtual void SetupInputComponent() override;
 
+	virtual bool InputKey(const FInputKeyParams& Params) override;
+
 };

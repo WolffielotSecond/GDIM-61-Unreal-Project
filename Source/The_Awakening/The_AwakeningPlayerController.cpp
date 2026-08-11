@@ -8,6 +8,7 @@
 #include "Blueprint/UserWidget.h"
 #include "The_Awakening.h"
 #include "Widgets/Input/SVirtualJoystick.h"
+#include "Core/TAInputIconSubsystem.h"
 
 void AThe_AwakeningPlayerController::BeginPlay()
 {
@@ -58,4 +59,24 @@ void AThe_AwakeningPlayerController::SetupInputComponent()
 			}
 		}
 	}
+}
+
+bool AThe_AwakeningPlayerController::InputKey(const FInputKeyParams& Params)
+{
+	// 先让父类处理
+	const bool bResult = Super::InputKey(Params);
+
+	// 只在有实际按键事件时通知
+	if (Params.Event == IE_Pressed || Params.Event == IE_Repeat || Params.Event == IE_Axis)
+	{
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UTAInputIconSubsystem* IconSys = GI->GetSubsystem<UTAInputIconSubsystem>())
+			{
+				IconSys->NotifyInputKey(Params.Key);
+			}
+		}
+	}
+
+	return bResult;
 }

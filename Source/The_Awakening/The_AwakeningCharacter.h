@@ -37,6 +37,19 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+	/** 键盘四方向 */
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveForwardAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveBackwardAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveLeftAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveRightAction;
+
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* JumpAction;
@@ -121,6 +134,23 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+
+	bool bMoveForward = false;
+	bool bMoveBackward = false;
+	bool bMoveLeft = false;
+	bool bMoveRight = false;
+
+	void OnMoveForward(const FInputActionValue& Value);
+	void OnMoveBackward(const FInputActionValue& Value);
+	void OnMoveLeft(const FInputActionValue& Value);
+	void OnMoveRight(const FInputActionValue& Value);
+
+	void OnMoveForwardReleased(const FInputActionValue& Value);
+	void OnMoveBackwardReleased(const FInputActionValue& Value);
+	void OnMoveLeftReleased(const FInputActionValue& Value);
+	void OnMoveRightReleased(const FInputActionValue& Value);
+
+	void UpdateMovementInput();
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
