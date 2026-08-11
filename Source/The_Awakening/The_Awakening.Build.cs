@@ -14,12 +14,17 @@ public class The_Awakening : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"AIModule",
+            "GameplayAbilities",
+            "GameplayTags",
+			"GameplayTasks",
+            "AIModule",
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
-			"Slate"
-		});
+			"Slate",
+			"Json",
+			"JsonUtilities"
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
 
