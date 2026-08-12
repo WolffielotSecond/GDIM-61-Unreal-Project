@@ -25,7 +25,7 @@
 *.a
 *.lib
 
-
+!Plugins/WwiseSoundEngine/ThirdParty/**/*.lib
 
 # Executables
 *.exe
@@ -75,12 +75,3 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
-
-
-# Wwise
-Plugins/Wwise/
-Plugins/Wwise*/
-Plugins/WwiseSoundEngine/
-Plugins/Wwise*/ 
-Plugins/AkAudio/
-Plugins/Audiokinetic*/
