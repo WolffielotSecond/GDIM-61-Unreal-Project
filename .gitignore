@@ -25,6 +25,8 @@
 *.a
 *.lib
 
+!Plugins/WwiseSoundEngine/ThirdParty/**/*.lib
+
 # Executables
 *.exe
 *.out
