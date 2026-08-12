@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 class UAbilitySystemComponent;
+class UTAParkourComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -65,6 +66,16 @@ protected:
 	/** Interact Input Action */
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractAction;
+
+	/** 跑酷输入 */
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ParkourJumpAction;   // 空格
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ParkourDropAction;   // Ctrl
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UTAParkourComponent> ParkourComponent;
 
 	/** 相机跟随距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
@@ -157,6 +168,9 @@ protected:
 	void OnMoveRightReleased(const FInputActionValue& Value);
 
 	void UpdateMovementInput();
+
+	void OnParkourJump(const FInputActionValue& Value);
+	void OnParkourDrop(const FInputActionValue& Value);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Input")

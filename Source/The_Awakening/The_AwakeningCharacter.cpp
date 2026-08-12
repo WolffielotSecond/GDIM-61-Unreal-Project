@@ -17,6 +17,7 @@
 #include "Interaction/TAInteractableActor.h"
 #include "Engine/OverlapResult.h"
 #include "CollisionQueryParams.h"
+#include "Movement/TAParkourComponent.h"
 
 AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 {
@@ -54,6 +55,8 @@ AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	ParkourComponent = CreateDefaultSubobject<UTAParkourComponent>(TEXT("ParkourComponent"));
 }
 
 void AThe_AwakeningCharacter::BeginPlay()
@@ -120,6 +123,17 @@ void AThe_AwakeningCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		if (InteractAction)
 		{
 			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AThe_AwakeningCharacter::TryInteract);
+		}
+
+		if (ParkourJumpAction)
+		{
+			EnhancedInputComponent->BindAction(
+				ParkourJumpAction, ETriggerEvent::Started, this, &AThe_AwakeningCharacter::OnParkourJump);
+		}
+		if (ParkourDropAction)
+		{
+			EnhancedInputComponent->BindAction(
+				ParkourDropAction, ETriggerEvent::Started, this, &AThe_AwakeningCharacter::OnParkourDrop);
 		}
 	}
 }
@@ -198,6 +212,12 @@ void AThe_AwakeningCharacter::Look(const FInputActionValue& Value)
 
 void AThe_AwakeningCharacter::DoMove(float Right, float Forward)
 {
+
+	if (ParkourComponent && ParkourComponent->IsParkouring())
+	{
+		return;
+	}
+
 	if (GetController() == nullptr)
 	{
 		return;
@@ -531,4 +551,20 @@ bool AThe_AwakeningCharacter::IsSafeToMoveToward(const FVector& WorldDirection) 
 	}
 
 	return false;
+}
+
+void AThe_AwakeningCharacter::OnParkourJump(const FInputActionValue& Value)
+{
+	if (ParkourComponent)
+	{
+		ParkourComponent->TryParkourJump();
+	}
+}
+
+void AThe_AwakeningCharacter::OnParkourDrop(const FInputActionValue& Value)
+{
+	if (ParkourComponent)
+	{
+		ParkourComponent->TryParkourDrop();
+	}
 }
