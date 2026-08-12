@@ -31,7 +31,7 @@ AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 
-	GetCharacterMovement()->JumpZVelocity = 500.f;
+	GetCharacterMovement()->JumpZVelocity = 0.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
@@ -206,14 +206,38 @@ void AThe_AwakeningCharacter::DoMove(float Right, float Forward)
 		return;
 	}
 
-	const FRotator Rotation = GetController()->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
-
+	const FRotator YawRotation(0.f, GetController()->GetControlRotation().Yaw, 0.f);
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	AddMovementInput(ForwardDirection, Forward);
-	AddMovementInput(RightDirection, Right);
+	float SafeForward = Forward;
+	float SafeRight = Right;
+
+	if (!FMath::IsNearlyZero(Forward))
+	{
+		const FVector Dir = ForwardDirection * FMath::Sign(Forward);
+		if (!IsSafeToMoveToward(Dir))
+		{
+			SafeForward = 0.f;
+		}
+	}
+
+	if (!FMath::IsNearlyZero(Right))
+	{
+		const FVector Dir = RightDirection * FMath::Sign(Right);
+		if (!IsSafeToMoveToward(Dir))
+		{
+			SafeRight = 0.f;
+		}
+	}
+
+	if (FMath::IsNearlyZero(SafeForward) && FMath::IsNearlyZero(SafeRight))
+	{
+		return;
+	}
+
+	AddMovementInput(ForwardDirection, SafeForward);
+	AddMovementInput(RightDirection, SafeRight);
 }
 
 void AThe_AwakeningCharacter::DoLook(float Yaw, float Pitch)
@@ -221,11 +245,67 @@ void AThe_AwakeningCharacter::DoLook(float Yaw, float Pitch)
 	float FinalYaw = bInvertCameraX ? -Yaw : Yaw;
 	float FinalPitch = bInvertCameraY ? Pitch : -Pitch;
 
-	CurrentCameraOffset.Y += FinalYaw * CameraMoveSensitivity;
-	CurrentCameraOffset.Z += FinalPitch * CameraMoveSensitivity;
+	const float SoftStartRatio = 0.2f;
 
-	CurrentCameraOffset.Y = FMath::Clamp(CurrentCameraOffset.Y, -CameraOffsetLimitX, CameraOffsetLimitX);
-	CurrentCameraOffset.Z = FMath::Clamp(CurrentCameraOffset.Z, -CameraOffsetLimitZ, CameraOffsetLimitZ);
+	auto ApplyStrongSoftLimit = [SoftStartRatio](float Current, float Delta, float Limit) -> float
+		{
+			if (Limit <= KINDA_SMALL_NUMBER || FMath::IsNearlyZero(Delta))
+			{
+				return 0.f;
+			}
+
+			const bool bMovingOutward = (Current * Delta) > 0.f;
+
+			if (!bMovingOutward)
+			{
+				return Delta;
+			}
+
+			const float AbsCurrent = FMath::Abs(Current);
+			const float Ratio = AbsCurrent / Limit;
+
+			if (Ratio < SoftStartRatio)
+			{
+				const float Next = Current + Delta;
+				if (FMath::Abs(Next) <= Limit * SoftStartRatio)
+				{
+					return Delta;
+				}
+			}
+
+			const float Remaining = FMath::Max(0.f, Limit - AbsCurrent);
+
+			float T = 0.f;
+			if (Ratio >= SoftStartRatio)
+			{
+				T = (Ratio - SoftStartRatio) / FMath::Max(1.f - SoftStartRatio, KINDA_SMALL_NUMBER);
+				T = FMath::Clamp(T, 0.f, 1.f);
+			}
+			const float Ease = 1.f - (T * T * T);
+
+			const float MaxStep = Remaining * FMath::Lerp(0.35f, 0.03f, T);
+
+			float ClampedDelta = Delta * Ease;
+			if (FMath::Abs(ClampedDelta) > MaxStep)
+			{
+				ClampedDelta = FMath::Sign(ClampedDelta) * MaxStep;
+			}
+
+			return ClampedDelta;
+		};
+
+	const float DeltaY = ApplyStrongSoftLimit(
+		CurrentCameraOffset.Y,
+		FinalYaw * CameraMoveSensitivity,
+		CameraOffsetLimitX);
+
+	const float DeltaZ = ApplyStrongSoftLimit(
+		CurrentCameraOffset.Z,
+		FinalPitch * CameraMoveSensitivity,
+		CameraOffsetLimitZ);
+
+	CurrentCameraOffset.Y = FMath::Clamp(CurrentCameraOffset.Y + DeltaY, -CameraOffsetLimitX, CameraOffsetLimitX);
+	CurrentCameraOffset.Z = FMath::Clamp(CurrentCameraOffset.Z + DeltaZ, -CameraOffsetLimitZ, CameraOffsetLimitZ);
 
 	if (CameraBoom)
 	{
@@ -235,12 +315,12 @@ void AThe_AwakeningCharacter::DoLook(float Yaw, float Pitch)
 
 void AThe_AwakeningCharacter::DoJumpStart()
 {
-	Jump();
+
 }
 
 void AThe_AwakeningCharacter::DoJumpEnd()
 {
-	StopJumping();
+
 }
 
 UAbilitySystemComponent* AThe_AwakeningCharacter::GetAbilitySystemComponent() const
@@ -396,4 +476,72 @@ void AThe_AwakeningCharacter::UpdateInteractTarget()
 
 		CurrentInteractTarget = NewTarget;
 	}
+}
+
+bool AThe_AwakeningCharacter::IsSafeToMoveToward(const FVector& WorldDirection) const
+{
+	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	if (!MoveComp || !GetWorld())
+	{
+		return true;
+	}
+
+	if (!MoveComp->IsMovingOnGround())
+	{
+		return true;
+	}
+
+	const FVector Dir = WorldDirection.GetSafeNormal2D();
+	if (Dir.IsNearlyZero())
+	{
+		return true;
+	}
+
+	const float CapsuleHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	const float CapsuleRadius = GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector CapsuleLoc = GetActorLocation();
+	const float CurrentFootZ = CapsuleLoc.Z - CapsuleHalfHeight;
+
+	const FVector ProbeStart =
+		CapsuleLoc +
+		Dir * (CapsuleRadius + EdgeCheckForwardDistance) +
+		FVector(0.f, 0.f, 20.f);
+
+	const float ProbeDepth = CapsuleHalfHeight + FMath::Max(MaxSafeFallHeight, MoveComp->MaxStepHeight) + 40.f;
+	const FVector ProbeEnd = ProbeStart - FVector(0.f, 0.f, ProbeDepth);
+
+	FHitResult Hit;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(EdgeCheck), false, this);
+
+	const bool bHit = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		ProbeStart,
+		ProbeEnd,
+		ECC_Visibility,
+		Params);
+
+	if (!bHit)
+	{
+		return false;
+	}
+
+	const float HeightDelta = Hit.ImpactPoint.Z - CurrentFootZ;
+
+	if (HeightDelta >= -MoveComp->MaxStepHeight)
+	{
+		if (MoveComp->IsWalkable(Hit))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	const float Drop = -HeightDelta;
+	if (Drop <= MaxSafeFallHeight && MoveComp->IsWalkable(Hit))
+	{
+		return true;
+	}
+
+	return false;
 }

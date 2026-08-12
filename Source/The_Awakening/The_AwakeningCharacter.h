@@ -119,6 +119,20 @@ protected:
 	/** 更新当前可交互目标并控制提示显示 */
 	void UpdateInteractTarget();
 
+	/** 允许走下去的最大落差*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float MaxSafeFallHeight = 80.f;
+
+	/** 边缘检测向前探出的距离 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float EdgeCheckForwardDistance = 60.f;
+
+	/** 是否禁止跳跃 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bDisableJump = true;
+
+	bool IsSafeToMoveToward(const FVector& WorldDirection) const;
+
 public:
 	AThe_AwakeningCharacter();
 
