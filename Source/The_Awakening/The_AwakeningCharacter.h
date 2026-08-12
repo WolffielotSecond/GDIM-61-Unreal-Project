@@ -50,10 +50,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* MoveRightAction;
 
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* JumpAction;
-
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* MoveAction;
@@ -127,10 +123,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float EdgeCheckForwardDistance = 60.f;
 
-	/** 是否禁止跳跃 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	bool bDisableJump = true;
-
 	bool IsSafeToMoveToward(const FVector& WorldDirection) const;
 
 public:
@@ -172,12 +164,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	virtual void DoLook(float Yaw, float Pitch);
-
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	virtual void DoJumpStart();
-
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	virtual void DoJumpEnd();
 
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

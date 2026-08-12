@@ -83,9 +83,6 @@ void AThe_AwakeningCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 {
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// Jump
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// 手柄摇杆移动
 		if (MoveAction)
@@ -311,16 +308,6 @@ void AThe_AwakeningCharacter::DoLook(float Yaw, float Pitch)
 	{
 		CameraBoom->TargetOffset = CurrentCameraOffset;
 	}
-}
-
-void AThe_AwakeningCharacter::DoJumpStart()
-{
-
-}
-
-void AThe_AwakeningCharacter::DoJumpEnd()
-{
-
 }
 
 UAbilitySystemComponent* AThe_AwakeningCharacter::GetAbilitySystemComponent() const
