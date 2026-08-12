@@ -18,6 +18,7 @@ bool UTALocalizeSubsystem::SetLanguage(const FString& LanguageCode)
 	if (LoadLanguageFile(LanguageCode))
 	{
 		CurrentLanguage = LanguageCode;
+		OnLanguageChanged.Broadcast();
 		UE_LOG(LogTemp, Log, TEXT("Localization language set to: %s"), *LanguageCode);
 		return true;
 	}

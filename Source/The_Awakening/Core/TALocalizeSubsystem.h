@@ -4,7 +4,10 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "TALocalizeSubsystem.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLanguageChanged);
+
 UCLASS()
+
 class THE_AWAKENING_API UTALocalizeSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
@@ -27,6 +30,10 @@ public:
 	/** 获取支持的语言列表 */
 	UFUNCTION(BlueprintCallable, Category = "Localization")
 	TArray<FString> GetAvailableLanguages() const;
+
+	/** 语言切换时触发 */
+	UPROPERTY(BlueprintAssignable, Category = "Localization")
+	FOnLanguageChanged OnLanguageChanged;
 
 protected:
 	/** 加载指定语言的 JSON 文件 */

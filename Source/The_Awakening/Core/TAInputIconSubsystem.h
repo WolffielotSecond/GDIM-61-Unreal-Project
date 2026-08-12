@@ -17,6 +17,8 @@ enum class EInputDeviceType : uint8
 	Switch
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInputDeviceChanged);
+
 UCLASS()
 class THE_AWAKENING_API UTAInputIconSubsystem : public UGameInstanceSubsystem
 {
@@ -44,6 +46,10 @@ public:
 	/** 根据实际按下的按键自动更新设备类型 */
 	UFUNCTION(BlueprintCallable, Category = "InputIcon")
 	void NotifyInputKey(const FKey& Key);
+
+
+	UPROPERTY(BlueprintAssignable, Category = "InputIcon")
+	FOnInputDeviceChanged OnInputDeviceChanged;
 
 protected:
 	FString BuildIconPath(FKey Key) const;

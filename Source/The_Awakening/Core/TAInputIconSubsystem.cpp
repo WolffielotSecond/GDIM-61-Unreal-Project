@@ -14,7 +14,11 @@ void UTAInputIconSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UTAInputIconSubsystem::SetCurrentDeviceType(EInputDeviceType NewType)
 {
-	CurrentDeviceType = NewType;
+	if (CurrentDeviceType != NewType)
+	{
+		CurrentDeviceType = NewType;
+		OnInputDeviceChanged.Broadcast();
+	}
 }
 
 void UTAInputIconSubsystem::NotifyInputKey(const FKey& Key)
@@ -24,22 +28,22 @@ void UTAInputIconSubsystem::NotifyInputKey(const FKey& Key)
 		return;
 	}
 
+	EInputDeviceType NewType = CurrentDeviceType;
+
 	if (Key.IsGamepadKey())
 	{
-		if (CurrentDeviceType != EInputDeviceType::Xbox)
-		{
-			CurrentDeviceType = EInputDeviceType::Xbox;
-			UE_LOG(LogTemp, Log, TEXT("Input device -> Xbox"));
-		}
+		NewType = EInputDeviceType::Xbox;
 	}
 	else
 	{
-		// 键盘或鼠标
-		if (CurrentDeviceType != EInputDeviceType::KeyboardMouse)
-		{
-			CurrentDeviceType = EInputDeviceType::KeyboardMouse;
-			UE_LOG(LogTemp, Log, TEXT("Input device -> KeyboardMouse"));
-		}
+		NewType = EInputDeviceType::KeyboardMouse;
+	}
+
+	if (NewType != CurrentDeviceType)
+	{
+		CurrentDeviceType = NewType;
+		OnInputDeviceChanged.Broadcast();
+		UE_LOG(LogTemp, Log, TEXT("Input device changed"));
 	}
 }
 
