@@ -18,6 +18,7 @@
 #include "Engine/OverlapResult.h"
 #include "CollisionQueryParams.h"
 #include "Movement/TAParkourComponent.h"
+#include "Inventory/TAInventoryComponent.h"
 
 AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 {
@@ -57,6 +58,7 @@ AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	ParkourComponent = CreateDefaultSubobject<UTAParkourComponent>(TEXT("ParkourComponent"));
+	InventoryComponent = CreateDefaultSubobject<UTAInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void AThe_AwakeningCharacter::BeginPlay()

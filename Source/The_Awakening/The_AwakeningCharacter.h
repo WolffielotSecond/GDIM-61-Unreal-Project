@@ -13,6 +13,7 @@ class UCameraComponent;
 class UInputAction;
 class UAbilitySystemComponent;
 class UTAParkourComponent;
+class UTAInventoryComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -76,6 +77,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UTAParkourComponent> ParkourComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UTAInventoryComponent> InventoryComponent;
 
 	/** 相机跟随距离 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
