@@ -25,22 +25,102 @@ void UTAParkourComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 		return;
 	}
 
+	if (UCharacterMovementComponent* Move = OwnerCharacter->GetCharacterMovement())
+	{
+		Move->Velocity = FVector::ZeroVector;
+	}
+
 	ParkourTime += DeltaTime;
 	const float Alpha = FMath::Clamp(ParkourTime / ParkourDuration, 0.f, 1.f);
 
 	const FVector NewLoc = EvalParabola(ParkourStart, ParkourEnd, ParkourArcHeight, Alpha);
-	OwnerCharacter->SetActorLocation(NewLoc, false, nullptr, ETeleportType::None);
+	OwnerCharacter->SetActorLocation(NewLoc, false, nullptr, ETeleportType::TeleportPhysics);
 
-	if (HasLanded())
+	if (Alpha >= 1.f)
 	{
 		FinishParkour();
 		return;
 	}
 
-	if (Alpha >= 1.f)
+	if (Alpha > 0.85f && HasLanded())
 	{
 		FinishParkour();
 	}
+}
+
+bool UTAParkourComponent::StartParkour(ATAParkourMarker* Marker)
+{
+	if (!Marker || !Marker->IsValidMarker() || !OwnerCharacter.IsValid())
+	{
+		return false;
+	}
+
+	ParkourStart = OwnerCharacter->GetActorLocation();
+	ParkourEnd = Marker->GetLandingLocation();
+	ParkourArcHeight = Marker->ArcHeight;
+	ParkourDuration = FMath::Max(Marker->JumpDuration, 0.05f);
+	ParkourTime = 0.f;
+	bIsParkouring = true;
+
+	if (UCharacterMovementComponent* Move = OwnerCharacter->GetCharacterMovement())
+	{
+		Move->StopMovementImmediately();
+		Move->Velocity = FVector::ZeroVector;
+		Move->SetMovementMode(MOVE_Flying);
+	}
+
+	return true;
+}
+
+void UTAParkourComponent::FinishParkour()
+{
+	if (!bIsParkouring)
+	{
+		return;
+	}
+
+	bIsParkouring = false;
+
+	if (!OwnerCharacter.IsValid())
+	{
+		return;
+	}
+
+	if (UCharacterMovementComponent* Move = OwnerCharacter->GetCharacterMovement())
+	{
+		Move->StopMovementImmediately();
+		Move->Velocity = FVector::ZeroVector;
+		Move->SetMovementMode(MOVE_Walking);
+	}
+}
+
+bool UTAParkourComponent::HasLanded() const
+{
+	if (!OwnerCharacter.IsValid())
+	{
+		return false;
+	}
+
+	if (ParkourTime < 0.08f)
+	{
+		return false;
+	}
+
+	UCharacterMovementComponent* Move = OwnerCharacter->GetCharacterMovement();
+	if (!Move)
+	{
+		return false;
+	}
+
+	FFindFloorResult FloorResult;
+	Move->FindFloor(OwnerCharacter->GetActorLocation(), FloorResult, false);
+
+	if (!FloorResult.IsWalkableFloor())
+	{
+		return false;
+	}
+
+	return FloorResult.FloorDist <= Move->MAX_FLOOR_DIST + 5.f;
 }
 
 FVector UTAParkourComponent::EvalParabola(const FVector& Start, const FVector& End, float ArcHeight, float Alpha)
@@ -76,45 +156,6 @@ void UTAParkourComponent::TryParkourDrop()
 	StartParkour(CurrentMarker);
 }
 
-bool UTAParkourComponent::StartParkour(ATAParkourMarker* Marker)
-{
-	if (!Marker || !Marker->IsValidMarker() || !OwnerCharacter.IsValid())
-	{
-		return false;
-	}
-
-	ParkourStart = OwnerCharacter->GetActorLocation();
-	ParkourEnd = Marker->GetLandingLocation();
-	ParkourArcHeight = Marker->ArcHeight;
-	ParkourDuration = FMath::Max(Marker->JumpDuration, 0.05f);
-	ParkourTime = 0.f;
-	bIsParkouring = true;
-
-	if (UCharacterMovementComponent* Move = OwnerCharacter->GetCharacterMovement())
-	{
-		Move->StopMovementImmediately();
-		Move->SetMovementMode(MOVE_Flying); // 期间不受重力干扰
-	}
-
-	return true;
-}
-
-void UTAParkourComponent::FinishParkour()
-{
-	bIsParkouring = false;
-
-	if (!OwnerCharacter.IsValid())
-	{
-		return;
-	}
-
-	if (UCharacterMovementComponent* Move = OwnerCharacter->GetCharacterMovement())
-	{
-		Move->StopMovementImmediately();
-		Move->Velocity = FVector::ZeroVector;
-		Move->SetMovementMode(MOVE_Walking);
-	}
-}
 
 void UTAParkourComponent::RegisterMarker(ATAParkourMarker* Marker)
 {
@@ -133,35 +174,4 @@ void UTAParkourComponent::UnregisterMarker(ATAParkourMarker* Marker)
 	{
 		CurrentMarker = OverlappingMarkers.Num() > 0 ? OverlappingMarkers.Last() : nullptr;
 	}
-}
-
-bool UTAParkourComponent::HasLanded() const
-{
-	if (!OwnerCharacter.IsValid())
-	{
-		return false;
-	}
-
-	// 起跳后短暂忽略
-	if (ParkourTime < 0.08f)
-	{
-		return false;
-	}
-
-	UCharacterMovementComponent* Move = OwnerCharacter->GetCharacterMovement();
-	if (!Move)
-	{
-		return false;
-	}
-
-	FFindFloorResult FloorResult;
-	Move->FindFloor(OwnerCharacter->GetActorLocation(), FloorResult, false);
-
-	if (!FloorResult.IsWalkableFloor())
-	{
-		return false;
-	}
-
-	const float FloorDist = FloorResult.FloorDist;
-	return FloorDist <= Move->MAX_FLOOR_DIST + 5.f;
 }
