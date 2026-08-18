@@ -1,7 +1,19 @@
 {
+  "Common_UnavailableInThisVersion": "Unavailable in this version",
   "Interact_Default": "Interact",
   "Interact_PickUp": "Pick Up",
   "Interact_Talk": "Talk",
   "UI_StartGame": "Start Game",
-  "UI_Settings": "Settings"
+  "UI_Settings": "Settings",
+  "UI_Inventory": "Inventory",
+  "UI_Skill": "Skills",
+  "Item_Herb_Name": "Herb",
+  "Item_Herb_Desc": "A common medicinal herb. Use it to restore a small amount of health.",
+  "Item_Keycard_Name": "Keycard",
+  "Item_Keycard_Desc": "A worn keycard that might open a locked door somewhere.",
+    "ItemType_Treasure": "Treasure",
+  "ItemType_Consumable": "Consumable",
+  "ItemType_QuestItem": "Quest Item",
+  "ItemType_Weapon": "Weapon",
+  "ItemType_SkillBook": "Skill Book"
 }

@@ -19,6 +19,8 @@
 #include "CollisionQueryParams.h"
 #include "Movement/TAParkourComponent.h"
 #include "Inventory/TAInventoryComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "GameFramework/PlayerController.h"
 
 AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 {
@@ -136,6 +138,15 @@ void AThe_AwakeningCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		{
 			EnhancedInputComponent->BindAction(
 				ParkourDropAction, ETriggerEvent::Started, this, &AThe_AwakeningCharacter::OnParkourDrop);
+		}
+
+		if (ToggleInventoryAction)
+		{
+			EnhancedInputComponent->BindAction(
+				ToggleInventoryAction,
+				ETriggerEvent::Started,
+				this,
+				&AThe_AwakeningCharacter::ToggleInventory);
 		}
 	}
 }
@@ -569,4 +580,48 @@ void AThe_AwakeningCharacter::OnParkourDrop(const FInputActionValue& Value)
 	{
 		ParkourComponent->TryParkourDrop();
 	}
+}
+
+void AThe_AwakeningCharacter::ToggleInventory()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+	{
+		return;
+	}
+
+	// 已打开 → 关闭
+	if (InventoryWidgetInstance)
+	{
+		InventoryWidgetInstance->RemoveFromParent();
+		InventoryWidgetInstance = nullptr;
+
+		PC->SetShowMouseCursor(false);
+		FInputModeGameOnly InputMode;
+		PC->SetInputMode(InputMode);
+		return;
+	}
+
+	// 未打开 → 打开
+	if (!InventoryWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InventoryWidgetClass is not set."));
+		return;
+	}
+
+	InventoryWidgetInstance = CreateWidget<UUserWidget>(PC, InventoryWidgetClass);
+	if (!InventoryWidgetInstance)
+	{
+		return;
+	}
+
+	InventoryWidgetInstance->AddToViewport(10);
+
+	PC->SetShowMouseCursor(true);
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetWidgetToFocus(InventoryWidgetInstance->TakeWidget());
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(false);
+	PC->SetInputMode(InputMode);
 }

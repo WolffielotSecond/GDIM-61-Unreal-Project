@@ -1,7 +1,19 @@
 {
+  "Common_UnavailableInThisVersion": "目前版本中無法使用",
   "Interact_Default": "互動",
   "Interact_PickUp": "拾取",
   "Interact_Talk": "對話",
   "UI_StartGame": "開始遊戲",
-  "UI_Settings": "設置"
+  "UI_Settings": "設置",
+  "UI_Inventory": "背包",
+  "UI_Skill": "技能",
+  "Item_Herb_Name": "草藥",
+  "Item_Herb_Desc": "常見的療傷草藥，使用後可以恢復少量生命。",
+  "Item_Keycard_Name": "門禁卡",
+  "Item_Keycard_Desc": "一張破舊的門禁卡，或許能打開某處上鎖的門。",
+  "ItemType_Treasure": "寶物",
+  "ItemType_Consumable": "消耗道具",
+  "ItemType_QuestItem": "任務道具",
+  "ItemType_Weapon": "武器",
+  "ItemType_SkillBook": "技能書"
 }

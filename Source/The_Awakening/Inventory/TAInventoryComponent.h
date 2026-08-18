@@ -56,9 +56,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	bool DropFromSlot(int32 SlotIndex, int32 Count, FTAInventorySlot& OutDropped);
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void SortInventory()
+	{
+		ReorganizeInventory();
+		NotifyUpdated();
+	}
+
 protected:
 	void InitSlots();
 	void NotifyUpdated();
+	void ReorganizeInventory();
+
+	FString GetSortName(UTAItemDefinition* ItemDef) const;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TArray<FTAInventorySlot> Slots;

@@ -75,6 +75,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* ParkourDropAction;   // Ctrl
 
+	/** 切换背包输入 */
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ToggleInventoryAction;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UTAParkourComponent> ParkourComponent;
 
@@ -140,6 +144,18 @@ protected:
 
 	bool IsSafeToMoveToward(const FVector& WorldDirection) const;
 
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> InventoryWidgetInstance;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ToggleInventory();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool IsInventoryOpen() const { return InventoryWidgetInstance != nullptr; }
+
 public:
 	AThe_AwakeningCharacter();
 
@@ -175,6 +191,7 @@ protected:
 
 	void OnParkourJump(const FInputActionValue& Value);
 	void OnParkourDrop(const FInputActionValue& Value);
+
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Input")

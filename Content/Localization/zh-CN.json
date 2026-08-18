@@ -1,7 +1,19 @@
 {
+  "Common_UnavailableInThisVersion": "当前版本中不可用",
   "Interact_Default": "交互",
   "Interact_PickUp": "拾取",
   "Interact_Talk": "对话",
   "UI_StartGame": "开始游戏",
-  "UI_Settings": "设置"
+  "UI_Settings": "设置",
+  "UI_Inventory": "背包",
+  "UI_Skill": "技能",
+  "Item_Herb_Name": "草药",
+  "Item_Herb_Desc": "常见的疗伤草药，使用后可以恢复少量生命。",
+  "Item_Keycard_Name": "门禁卡",
+  "Item_Keycard_Desc": "一张破旧的门禁卡，或许能打开某处上锁的门。",
+  "ItemType_Treasure": "宝物",
+  "ItemType_Consumable": "消耗道具",
+  "ItemType_QuestItem": "任务道具",
+  "ItemType_Weapon": "武器",
+  "ItemType_SkillBook": "技能书"
 }

@@ -1,5 +1,6 @@
 #include "Inventory/TAInventoryComponent.h"
 #include "Inventory/TAItemDefinition.h"
+#include "Core/TALocalizeSubsystem.h"
 
 UTAInventoryComponent::UTAInventoryComponent()
 {
@@ -43,6 +44,7 @@ int32 UTAInventoryComponent::TryAddItem(UTAItemDefinition* ItemDef, int32 Count)
 				Remaining -= CanAdd;
 				if (Remaining <= 0)
 				{
+					ReorganizeInventory();
 					NotifyUpdated();
 					return Count;
 				}
@@ -111,7 +113,7 @@ int32 UTAInventoryComponent::RemoveFromSlot(int32 SlotIndex, int32 Count)
 		Slot.Count = 0;
 		Slot.Durability = 0.f;
 	}
-
+	ReorganizeInventory();
 	NotifyUpdated();
 	return Removed;
 }
@@ -174,7 +176,134 @@ bool UTAInventoryComponent::DropFromSlot(int32 SlotIndex, int32 Count, FTAInvent
 		Slot.Count = 0;
 		Slot.Durability = 0.f;
 	}
-
+	ReorganizeInventory();
 	NotifyUpdated();
 	return true;
+}
+
+FString UTAInventoryComponent::GetSortName(UTAItemDefinition* ItemDef) const
+{
+	if (!ItemDef)
+	{
+		return FString();
+	}
+
+	const FString TextId = ItemDef->DisplayName.ToString();
+	if (TextId.IsEmpty())
+	{
+		return FString();
+	}
+
+	if (const UWorld* World = GetWorld())
+	{
+		if (const UGameInstance* GI = World->GetGameInstance())
+		{
+			if (const UTALocalizeSubsystem* Loc = GI->GetSubsystem<UTALocalizeSubsystem>())
+			{
+				return Loc->GetText(TextId).ToString();
+			}
+		}
+	}
+
+	return TextId;
+}
+
+void UTAInventoryComponent::ReorganizeInventory()
+{
+	TArray<FTAInventorySlot> Packed;
+	Packed.Reserve(Slots.Num());
+	for (const FTAInventorySlot& Slot : Slots)
+	{
+		if (!Slot.IsEmpty())
+		{
+			Packed.Add(Slot);
+		}
+	}
+
+	if (Packed.Num() == 0)
+	{
+		return;
+	}
+
+	TMap<UTAItemDefinition*, FTAInventorySlot> MergeMap;
+	TArray<FTAInventorySlot> NonStackable;
+
+	for (const FTAInventorySlot& Slot : Packed)
+	{
+		UTAItemDefinition* Def = Slot.ItemDef;
+		if (!Def)
+		{
+			continue;
+		}
+
+		if (Def->bCanStack)
+		{
+			FTAInventorySlot& Merged = MergeMap.FindOrAdd(Def);
+			Merged.ItemDef = Def;
+			Merged.Count += Slot.Count;
+			Merged.Durability = 0.f;
+		}
+		else
+		{
+			NonStackable.Add(Slot);
+		}
+	}
+
+	TArray<FTAInventorySlot> Result;
+	Result.Reserve(Slots.Num());
+
+	for (const auto& Pair : MergeMap)
+	{
+		UTAItemDefinition* Def = Pair.Key;
+		int32 Remaining = Pair.Value.Count;
+		const int32 MaxStack = FMath::Max(1, Def->MaxStack);
+
+		while (Remaining > 0)
+		{
+			FTAInventorySlot NewSlot;
+			NewSlot.ItemDef = Def;
+			NewSlot.Count = FMath::Min(Remaining, MaxStack);
+			NewSlot.Durability = 0.f;
+			Result.Add(NewSlot);
+			Remaining -= NewSlot.Count;
+		}
+	}
+
+	Result.Append(NonStackable);
+
+	Result.Sort([this](const FTAInventorySlot& A, const FTAInventorySlot& B)
+		{
+			const UTAItemDefinition* DefA = A.ItemDef;
+			const UTAItemDefinition* DefB = B.ItemDef;
+			if (!DefA || !DefB)
+			{
+				return DefA != nullptr;
+			}
+
+			if (DefA->ItemType != DefB->ItemType)
+			{
+				return static_cast<uint8>(DefA->ItemType) < static_cast<uint8>(DefB->ItemType);
+			}
+
+			const FString NameA = GetSortName(A.ItemDef);
+			const FString NameB = GetSortName(B.ItemDef);
+			const int32 NameCmp = NameA.Compare(NameB, ESearchCase::IgnoreCase);
+			if (NameCmp != 0)
+			{
+				return NameCmp < 0;
+			}
+
+			return A.Count > B.Count;
+		});
+
+	for (FTAInventorySlot& Slot : Slots)
+	{
+		Slot = FTAInventorySlot();
+	}
+
+	const int32 WriteNum = FMath::Min(Result.Num(), Slots.Num());
+	for (int32 i = 0; i < WriteNum; ++i)
+	{
+		Slots[i] = Result[i];
+	}
 }
