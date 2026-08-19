@@ -1,6 +1,9 @@
 #include "Interaction/TAInteractableActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/Image.h"
+#include "Components/TextBlock.h"
 
 ATAInteractableActor::ATAInteractableActor()
 {
@@ -14,7 +17,6 @@ ATAInteractableActor::ATAInteractableActor()
 	InteractPromptComponent->SetRelativeLocation(FVector(0.f, 0.f, 120.f));
 	InteractPromptComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	InteractPromptComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 	InteractPromptComponent->SetDrawAtDesiredSize(true);
 	InteractPromptComponent->SetVisibility(false);
 }
@@ -39,7 +41,21 @@ bool ATAInteractableActor::CanInteract_Implementation(AActor* Interactor) const
 
 FText ATAInteractableActor::GetInteractText_Implementation() const
 {
-	return InteractText.IsEmpty() ? NSLOCTEXT("Interaction", "DefaultInteract", "交互") : InteractText;
+	// 保留接口
+	if (!InteractText.IsEmpty())
+	{
+		return InteractText;
+	}
+	return FText::FromString(InteractTextId);
+}
+
+FString ATAInteractableActor::GetPromptTextId() const
+{
+	if (!InteractTextId.IsEmpty())
+	{
+		return InteractTextId;
+	}
+	return InteractText.ToString();
 }
 
 void ATAInteractableActor::SetPromptVisible(bool bVisible)
@@ -48,4 +64,33 @@ void ATAInteractableActor::SetPromptVisible(bool bVisible)
 	{
 		InteractPromptComponent->SetVisibility(bVisible);
 	}
+}
+
+void ATAInteractableActor::RefreshPrompt(UTexture2D* KeyIcon, const FText& PromptText)
+{
+	if (!InteractPromptComponent)
+	{
+		return;
+	}
+
+	UUserWidget* Widget = InteractPromptComponent->GetUserWidgetObject();
+	if (!Widget)
+	{
+		return;
+	}
+
+	if (UTextBlock* TextBlock = Cast<UTextBlock>(Widget->GetWidgetFromName(TEXT("Text_Prompt"))))
+	{
+		TextBlock->SetText(PromptText);
+	}
+
+	if (UImage* Image = Cast<UImage>(Widget->GetWidgetFromName(TEXT("Image_Key"))))
+	{
+		if (KeyIcon)
+		{
+			Image->SetBrushFromTexture(KeyIcon);
+			Image->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+	}
+
 }

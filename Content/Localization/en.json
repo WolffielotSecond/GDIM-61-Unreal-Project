@@ -15,5 +15,7 @@
   "ItemType_Consumable": "Consumable",
   "ItemType_QuestItem": "Quest Item",
   "ItemType_Weapon": "Weapon",
-  "ItemType_SkillBook": "Skill Book"
+  "ItemType_SkillBook": "Skill Book",
+  "Parkour_Jump": "Vault",
+  "Parkour_Drop": "Drop"
 }

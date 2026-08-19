@@ -6,6 +6,8 @@
 
 class UBoxComponent;
 class UChildActorComponent;
+class UWidgetComponent;
+class UTexture2D;
 
 UENUM(BlueprintType)
 enum class ETAParkourMarkerType : uint8
@@ -31,9 +33,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UBoxComponent> TriggerBox;
 
-	/** 默认落点子 Actor，地编在关卡里拖动它即可 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UChildActorComponent> LandingTargetComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UWidgetComponent> PromptWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parkour")
 	ETAParkourMarkerType MarkerType = ETAParkourMarkerType::JumpToPoint;
@@ -52,6 +56,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Parkour")
 	FVector GetLandingLocation() const;
+
+	UWidgetComponent* GetPromptWidgetComponent() const { return PromptWidget; }
+
+	UFUNCTION(BlueprintCallable, Category = "Parkour")
+	void SetPromptVisible(bool bVisible);
+
+	UFUNCTION(BlueprintCallable, Category = "Parkour")
+	void RefreshPrompt(UTexture2D* KeyIcon, const FText& PromptText);
 
 protected:
 	UFUNCTION()

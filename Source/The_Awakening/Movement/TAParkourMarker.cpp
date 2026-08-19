@@ -2,7 +2,11 @@
 #include "Movement/TAParkourComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/ChildActorComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Engine/TargetPoint.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/Image.h"
+#include "Components/TextBlock.h"
 
 ATAParkourMarker::ATAParkourMarker()
 {
@@ -20,6 +24,14 @@ ATAParkourMarker::ATAParkourMarker()
 	LandingTargetComponent->SetupAttachment(RootComponent);
 	LandingTargetComponent->SetRelativeLocation(FVector(300.f, 0.f, 0.f));
 	LandingTargetComponent->SetChildActorClass(ATargetPoint::StaticClass());
+
+	PromptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PromptWidget"));
+	PromptWidget->SetupAttachment(RootComponent);
+	PromptWidget->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
+	PromptWidget->SetWidgetSpace(EWidgetSpace::Screen);
+	PromptWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PromptWidget->SetDrawAtDesiredSize(true);
+	PromptWidget->SetVisibility(false);
 }
 
 void ATAParkourMarker::OnConstruction(const FTransform& Transform)
@@ -57,6 +69,42 @@ bool ATAParkourMarker::IsValidMarker() const
 FVector ATAParkourMarker::GetLandingLocation() const
 {
 	return LandingTarget ? LandingTarget->GetActorLocation() : GetActorLocation();
+}
+
+void ATAParkourMarker::SetPromptVisible(bool bVisible)
+{
+	if (PromptWidget)
+	{
+		PromptWidget->SetVisibility(bVisible);
+	}
+}
+
+void ATAParkourMarker::RefreshPrompt(UTexture2D* KeyIcon, const FText& PromptText)
+{
+	if (!PromptWidget)
+	{
+		return;
+	}
+
+	UUserWidget* Widget = PromptWidget->GetUserWidgetObject();
+	if (!Widget)
+	{
+		return;
+	}
+
+	if (UTextBlock* TextBlock = Cast<UTextBlock>(Widget->GetWidgetFromName(TEXT("Text_Prompt"))))
+	{
+		TextBlock->SetText(PromptText);
+	}
+
+	if (UImage* Image = Cast<UImage>(Widget->GetWidgetFromName(TEXT("Image_Key"))))
+	{
+		if (KeyIcon)
+		{
+			Image->SetBrushFromTexture(KeyIcon);
+			Image->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+	}
 }
 
 void ATAParkourMarker::OnBeginOverlap(

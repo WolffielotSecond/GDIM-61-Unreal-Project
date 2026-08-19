@@ -2,9 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Movement/TAParkourMarker.h"
 #include "TAParkourComponent.generated.h"
-
-class ATAParkourMarker;
 class UInputAction;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -17,6 +16,8 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	const TArray<TObjectPtr<ATAParkourMarker>>& GetOverlappingMarkers() const { return OverlappingMarkers; }
 
 	/** 尝试跨台跳（空格） */
 	UFUNCTION(BlueprintCallable, Category = "Parkour")
@@ -39,6 +40,8 @@ protected:
 	void OnTriggerEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	ATAParkourMarker* FindCurrentMarkerOfType(ETAParkourMarkerType Type) const;
+
 	bool StartParkour(ATAParkourMarker* Marker);
 	void FinishParkour();
 	bool HasLanded() const;
@@ -47,8 +50,6 @@ protected:
 	static FVector EvalParabola(const FVector& Start, const FVector& End, float ArcHeight, float Alpha);
 
 protected:
-	UPROPERTY()
-	TObjectPtr<ATAParkourMarker> CurrentMarker;
 
 	UPROPERTY()
 	TArray<TObjectPtr<ATAParkourMarker>> OverlappingMarkers;

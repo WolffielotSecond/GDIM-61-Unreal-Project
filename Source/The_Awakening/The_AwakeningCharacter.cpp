@@ -21,6 +21,7 @@
 #include "Inventory/TAInventoryComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
+#include "UI/TAPromptComponent.h"
 
 AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 {
@@ -61,6 +62,7 @@ AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 
 	ParkourComponent = CreateDefaultSubobject<UTAParkourComponent>(TEXT("ParkourComponent"));
 	InventoryComponent = CreateDefaultSubobject<UTAInventoryComponent>(TEXT("InventoryComponent"));
+	PromptComponent = CreateDefaultSubobject<UTAPromptComponent>(TEXT("PromptComponent"));
 }
 
 void AThe_AwakeningCharacter::BeginPlay()
@@ -72,10 +74,17 @@ void AThe_AwakeningCharacter::BeginPlay()
 		CameraBoom->SocketOffset = FVector(0.f, 0.f, CameraHeightOffset);
 		CameraBoom->TargetArmLength = CameraDistance;
 	}
-
 	if (FollowCamera)
 	{
 		FollowCamera->SetRelativeRotation(FRotator(CameraPitchAngle, 0.f, 0.f));
+	}
+
+	if (PromptComponent)
+	{
+		PromptComponent->PromptRadius = InteractionDistance;
+		PromptComponent->InteractAction = InteractAction;
+		PromptComponent->ParkourJumpAction = ParkourJumpAction;
+		PromptComponent->ParkourDropAction = ParkourDropAction;
 	}
 }
 
@@ -466,7 +475,6 @@ void AThe_AwakeningCharacter::UpdateInteractTarget()
 			{
 				continue;
 			}
-
 			if (!ITAInteractable::Execute_CanInteract(Actor, this))
 			{
 				continue;
@@ -481,21 +489,7 @@ void AThe_AwakeningCharacter::UpdateInteractTarget()
 		}
 	}
 
-	// 目标发生变化时更新提示
-	if (CurrentInteractTarget.Get() != NewTarget)
-	{
-		if (ATAInteractableActor* OldTarget = Cast<ATAInteractableActor>(CurrentInteractTarget.Get()))
-		{
-			OldTarget->SetPromptVisible(false);
-		}
-
-		if (ATAInteractableActor* NewInteractable = Cast<ATAInteractableActor>(NewTarget))
-		{
-			NewInteractable->SetPromptVisible(true);
-		}
-
-		CurrentInteractTarget = NewTarget;
-	}
+	CurrentInteractTarget = NewTarget;
 }
 
 bool AThe_AwakeningCharacter::IsSafeToMoveToward(const FVector& WorldDirection) const

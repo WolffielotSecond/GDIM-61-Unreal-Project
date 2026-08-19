@@ -15,5 +15,7 @@
   "ItemType_Consumable": "消耗道具",
   "ItemType_QuestItem": "任务道具",
   "ItemType_Weapon": "武器",
-  "ItemType_SkillBook": "技能书"
+  "ItemType_SkillBook": "技能书",
+  "Parkour_Jump": "越过",
+  "Parkour_Drop": "跳下"
 }

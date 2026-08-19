@@ -130,32 +130,44 @@ FVector UTAParkourComponent::EvalParabola(const FVector& Start, const FVector& E
 	return Linear + FVector(0.f, 0.f, HeightOffset);
 }
 
+ATAParkourMarker* UTAParkourComponent::FindCurrentMarkerOfType(ETAParkourMarkerType Type) const
+{
+	for (int32 i = OverlappingMarkers.Num() - 1; i >= 0; --i)
+	{
+		ATAParkourMarker* Marker = OverlappingMarkers[i];
+		if (Marker && Marker->MarkerType == Type)
+		{
+			return Marker;
+		}
+	}
+	return nullptr;
+}
+
 void UTAParkourComponent::TryParkourJump()
 {
-	if (bIsParkouring || !CurrentMarker)
+	if (bIsParkouring)
 	{
 		return;
 	}
-	if (CurrentMarker->MarkerType != ETAParkourMarkerType::JumpToPoint)
+
+	if (ATAParkourMarker* Marker = FindCurrentMarkerOfType(ETAParkourMarkerType::JumpToPoint))
 	{
-		return;
+		StartParkour(Marker);
 	}
-	StartParkour(CurrentMarker);
 }
 
 void UTAParkourComponent::TryParkourDrop()
 {
-	if (bIsParkouring || !CurrentMarker)
+	if (bIsParkouring)
 	{
 		return;
 	}
-	if (CurrentMarker->MarkerType != ETAParkourMarkerType::DropDown)
-	{
-		return;
-	}
-	StartParkour(CurrentMarker);
-}
 
+	if (ATAParkourMarker* Marker = FindCurrentMarkerOfType(ETAParkourMarkerType::DropDown))
+	{
+		StartParkour(Marker);
+	}
+}
 
 void UTAParkourComponent::RegisterMarker(ATAParkourMarker* Marker)
 {
@@ -163,15 +175,12 @@ void UTAParkourComponent::RegisterMarker(ATAParkourMarker* Marker)
 	{
 		return;
 	}
-	OverlappingMarkers.AddUnique(Marker);
-	CurrentMarker = Marker; // 多个重叠时取最后进入的
+
+	OverlappingMarkers.Remove(Marker);
+	OverlappingMarkers.Add(Marker);
 }
 
 void UTAParkourComponent::UnregisterMarker(ATAParkourMarker* Marker)
 {
 	OverlappingMarkers.Remove(Marker);
-	if (CurrentMarker == Marker)
-	{
-		CurrentMarker = OverlappingMarkers.Num() > 0 ? OverlappingMarkers.Last() : nullptr;
-	}
 }
