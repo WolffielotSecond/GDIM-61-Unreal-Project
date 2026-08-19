@@ -55,11 +55,13 @@ protected:
 	FString BuildIconPath(FKey Key) const;
 	UTexture2D* LoadIconFromPath(const FString& Path) const;
 	FString KeyToAssetName(FKey Key) const;
+	FString XboxAssetName(const FString& Logical) const;
+	FString PSAssetName(const FString& Logical) const;
 
 protected:
 	UPROPERTY()
 	EInputDeviceType CurrentDeviceType = EInputDeviceType::KeyboardMouse;
 
 	UPROPERTY(EditDefaultsOnly, Category = "InputIcon")
-	FString IconRootPath = TEXT("/Game/UI/KeyImage");
+	FString IconRootPath = TEXT("/Game/Textures/Keys");
 };

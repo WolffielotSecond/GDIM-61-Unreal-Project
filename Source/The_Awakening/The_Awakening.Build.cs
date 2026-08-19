@@ -22,7 +22,8 @@ public class The_Awakening : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
-			"Json",
+            "SlateCore",
+            "Json",
 			"JsonUtilities"
         });
 

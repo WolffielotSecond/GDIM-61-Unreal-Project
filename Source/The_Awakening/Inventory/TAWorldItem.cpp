@@ -10,6 +10,7 @@
 #include "Components/TextBlock.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
+#include "UI/TAPromptWidgetUtils.h"
 
 ATAWorldItem::ATAWorldItem()
 {
@@ -161,18 +162,5 @@ void ATAWorldItem::RefreshPrompt(UTexture2D* KeyIcon, const FText& PromptText)
 	{
 		return;
 	}
-
-	if (UTextBlock* TextBlock = Cast<UTextBlock>(Widget->GetWidgetFromName(TEXT("Text_Prompt"))))
-	{
-		TextBlock->SetText(PromptText);
-	}
-
-	if (UImage* Image = Cast<UImage>(Widget->GetWidgetFromName(TEXT("Image_Key"))))
-	{
-		if (KeyIcon)
-		{
-			Image->SetBrushFromTexture(KeyIcon);
-			Image->SetVisibility(ESlateVisibility::HitTestInvisible);
-		}
-	}
+	FTAPromptWidgetUtils::ApplyPrompt(Widget, KeyIcon, PromptText, 40.f);
 }

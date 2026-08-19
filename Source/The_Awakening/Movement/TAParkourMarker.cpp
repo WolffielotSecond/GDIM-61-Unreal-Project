@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "UI/TAPromptWidgetUtils.h"
 
 ATAParkourMarker::ATAParkourMarker()
 {
@@ -92,19 +93,7 @@ void ATAParkourMarker::RefreshPrompt(UTexture2D* KeyIcon, const FText& PromptTex
 		return;
 	}
 
-	if (UTextBlock* TextBlock = Cast<UTextBlock>(Widget->GetWidgetFromName(TEXT("Text_Prompt"))))
-	{
-		TextBlock->SetText(PromptText);
-	}
-
-	if (UImage* Image = Cast<UImage>(Widget->GetWidgetFromName(TEXT("Image_Key"))))
-	{
-		if (KeyIcon)
-		{
-			Image->SetBrushFromTexture(KeyIcon);
-			Image->SetVisibility(ESlateVisibility::HitTestInvisible);
-		}
-	}
+	FTAPromptWidgetUtils::ApplyPrompt(Widget, KeyIcon, PromptText, 40.f);
 }
 
 void ATAParkourMarker::OnBeginOverlap(
