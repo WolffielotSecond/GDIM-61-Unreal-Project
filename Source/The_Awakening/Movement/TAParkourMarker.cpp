@@ -93,7 +93,7 @@ void ATAParkourMarker::RefreshPrompt(UTexture2D* KeyIcon, const FText& PromptTex
 		return;
 	}
 
-	FTAPromptWidgetUtils::ApplyPrompt(Widget, KeyIcon, PromptText, 40.f);
+	FTAPromptWidgetUtils::ApplyPrompt(Widget, KeyIcon, PromptText);
 }
 
 void ATAParkourMarker::OnBeginOverlap(

@@ -12,5 +12,5 @@ struct THE_AWAKENING_API FTAPromptWidgetUtils
 		UUserWidget* Widget,
 		UTexture2D* KeyIcon,
 		const FText& PromptText,
-		float TargetIconHeight = 40.f);
+		float TargetIconHeight = 56.f);
 };
