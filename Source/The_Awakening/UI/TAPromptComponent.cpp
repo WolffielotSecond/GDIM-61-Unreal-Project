@@ -11,6 +11,7 @@
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Inventory/TAWorldItem.h"
 
 UTAPromptComponent::UTAPromptComponent()
 {
@@ -109,16 +110,22 @@ void UTAPromptComponent::CollectInteractCandidates(TArray<FTAPromptCandidate>& O
 		C.DistanceSq = FVector::DistSquared(PawnLoc, C.WorldLocation);
 		C.Action = InteractAction;
 
-		if (ATAInteractableActor* IA = Cast<ATAInteractableActor>(Actor))
+		if (ATAWorldItem* WorldItem = Cast<ATAWorldItem>(Actor))
+		{
+			C.TextId = WorldItem->GetPromptTextId();
+			C.PromptWidget = WorldItem->GetPromptWidgetComponent();
+		}
+		else if (ATAInteractableActor* IA = Cast<ATAInteractableActor>(Actor))
 		{
 			C.TextId = IA->GetPromptTextId();
-			if (C.TextId.IsEmpty())
-			{
-				C.TextId = InteractTextId;
-			}
 			C.PromptWidget = IA->GetPromptWidgetComponent();
 		}
 		else
+		{
+			C.TextId = InteractTextId;
+		}
+
+		if (C.TextId.IsEmpty())
 		{
 			C.TextId = InteractTextId;
 		}
@@ -289,11 +296,18 @@ void UTAPromptComponent::RefreshCandidate(const FTAPromptCandidate& Candidate)
 		}
 	}
 
+	if (ATAWorldItem* WorldItem = Cast<ATAWorldItem>(Source))
+	{
+		WorldItem->RefreshPrompt(Icon, PromptText);
+		return;
+	}
+
 	if (ATAInteractableActor* IA = Cast<ATAInteractableActor>(Source))
 	{
 		IA->RefreshPrompt(Icon, PromptText);
 		return;
 	}
+
 	if (ATAParkourMarker* Marker = Cast<ATAParkourMarker>(Source))
 	{
 		Marker->RefreshPrompt(Icon, PromptText);
