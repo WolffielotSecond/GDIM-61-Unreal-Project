@@ -230,7 +230,7 @@ void UTAPromptComponent::ApplyWinners(const TMap<ETAPromptType, FTAPromptCandida
 	};
 
 	int32 StackIndex = 0;
-	constexpr float BaseZ = 100.f;
+	float BaseZ = 100.f;
 	constexpr float Spacing = 55.f;
 
 	for (ETAPromptType Type : StackOrder)
@@ -239,6 +239,29 @@ void UTAPromptComponent::ApplyWinners(const TMap<ETAPromptType, FTAPromptCandida
 		{
 			if (UWidgetComponent* WC = C->PromptWidget.Get())
 			{
+
+				if (StackIndex == 0)
+				{
+
+					//根据交互？跑酷？类型不同设置相对位置
+					switch (Type)
+					{
+					case ETAPromptType::ParkourJump:
+					case ETAPromptType::ParkourDrop:
+						BaseZ = ParkourPromptZ;
+						break;
+
+					case ETAPromptType::Interact:
+						BaseZ = InteractPromptZ;
+						break;
+
+					default:
+						BaseZ = InteractPromptZ;
+						break;
+					}
+				}
+
+
 				WC->SetRelativeLocation(FVector(0.f, 0.f, BaseZ + StackIndex * Spacing));
 				++StackIndex;
 			}

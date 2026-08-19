@@ -65,6 +65,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Prompt|Text")
 	FString ParkourDropTextId = TEXT("Parkour_Drop");
 
+	//显示UI的text的relative位置
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prompt|Layout")
+	float InteractPromptZ = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prompt|Layout")
+	float ParkourPromptZ = -50.0f;
+
 protected:
 	/** 上一帧正在显示的提示（用于 Hide） */
 	UPROPERTY()
