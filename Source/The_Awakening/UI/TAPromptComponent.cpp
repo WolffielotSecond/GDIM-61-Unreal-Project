@@ -241,11 +241,15 @@ void UTAPromptComponent::ApplyWinners(const TMap<ETAPromptType, FTAPromptCandida
 
 void UTAPromptComponent::ShowCandidate(const FTAPromptCandidate& Candidate)
 {
-	RefreshCandidate(Candidate);
-	if (UWidgetComponent* Widget = Candidate.PromptWidget.Get())
+	if (UWidgetComponent* WidgetComp = Candidate.PromptWidget.Get())
 	{
-		Widget->SetVisibility(true);
+		WidgetComp->SetVisibility(true);
+		if (!WidgetComp->GetUserWidgetObject() && WidgetComp->GetWidgetClass())
+		{
+			WidgetComp->InitWidget();
+		}
 	}
+	RefreshCandidate(Candidate);
 }
 
 void UTAPromptComponent::HideCandidate(const FTAPromptCandidate& Candidate)

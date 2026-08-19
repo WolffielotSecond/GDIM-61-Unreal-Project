@@ -196,6 +196,8 @@ protected:
 	void OnParkourJump(const FInputActionValue& Value);
 	void OnParkourDrop(const FInputActionValue& Value);
 
+	UFUNCTION()
+	void OnPromptRelatedSettingsChanged();
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Input")

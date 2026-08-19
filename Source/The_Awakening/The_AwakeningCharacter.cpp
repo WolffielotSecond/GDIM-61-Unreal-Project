@@ -22,6 +22,8 @@
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "UI/TAPromptComponent.h"
+#include "Core/TALocalizeSubsystem.h"
+#include "Core/TAInputIconSubsystem.h"
 
 AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 {
@@ -85,6 +87,17 @@ void AThe_AwakeningCharacter::BeginPlay()
 		PromptComponent->InteractAction = InteractAction;
 		PromptComponent->ParkourJumpAction = ParkourJumpAction;
 		PromptComponent->ParkourDropAction = ParkourDropAction;
+	}
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UTALocalizeSubsystem* Loc = GI->GetSubsystem<UTALocalizeSubsystem>())
+		{
+			Loc->OnLanguageChanged.AddDynamic(this, &AThe_AwakeningCharacter::OnPromptRelatedSettingsChanged);
+		}
+		if (UTAInputIconSubsystem* Icons = GI->GetSubsystem<UTAInputIconSubsystem>())
+		{
+			Icons->OnInputDeviceChanged.AddDynamic(this, &AThe_AwakeningCharacter::OnPromptRelatedSettingsChanged);
+		}
 	}
 }
 
@@ -618,4 +631,12 @@ void AThe_AwakeningCharacter::ToggleInventory()
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputMode.SetHideCursorDuringCapture(false);
 	PC->SetInputMode(InputMode);
+}
+
+void AThe_AwakeningCharacter::OnPromptRelatedSettingsChanged()
+{
+	if (PromptComponent)
+	{
+		PromptComponent->RefreshVisiblePrompts();
+	}
 }
