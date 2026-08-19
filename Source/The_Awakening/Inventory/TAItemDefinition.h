@@ -53,6 +53,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SkillBook")
 	FName SkillTreeId;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
+	bool bIsCurrency = false;
+
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override
 	{
 		return FPrimaryAssetId(TEXT("TAItem"), GetFName());

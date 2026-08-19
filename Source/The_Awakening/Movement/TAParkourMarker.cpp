@@ -26,7 +26,7 @@ ATAParkourMarker::ATAParkourMarker()
 	LandingTargetComponent->SetChildActorClass(ATargetPoint::StaticClass());
 
 	PromptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PromptWidget"));
-	PromptWidget->SetupAttachment(RootComponent);
+	PromptWidget->SetupAttachment(LandingTargetComponent);
 	PromptWidget->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
 	PromptWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	PromptWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -20,3 +20,21 @@ UAbilitySystemComponent* ATAPlayerState::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
+void ATAPlayerState::AddMoney(int32 Amount)
+{
+	if (Amount == 0)
+	{
+		return;
+	}
+	Money = FMath::Max(0, Money + Amount);
+}
+
+bool ATAPlayerState::SpendMoney(int32 Amount)
+{
+	if (Amount <= 0 || Money < Amount)
+	{
+		return false;
+	}
+	Money -= Amount;
+	return true;
+}
