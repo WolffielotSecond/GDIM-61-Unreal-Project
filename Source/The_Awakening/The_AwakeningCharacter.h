@@ -69,6 +69,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractAction;
 
+	/** 扫描输入*/
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ScanAction; //rmb右键
+
 	/** 跑酷输入 */
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* ParkourJumpAction;   // 空格
@@ -195,6 +199,9 @@ protected:
 
 	void OnParkourJump(const FInputActionValue& Value);
 	void OnParkourDrop(const FInputActionValue& Value);
+
+	void OnScanStarted(const FInputActionValue& Value);
+	void OnScanEnded(const FInputActionValue& Value);
 
 	UFUNCTION()
 	void OnPromptRelatedSettingsChanged();

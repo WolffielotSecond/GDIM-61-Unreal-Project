@@ -9,7 +9,7 @@
 
 class UInputMappingContext;
 class UUserWidget;
-
+class UTAScanningComponent;
 /**
  * 输入设备检测器
  */
@@ -37,6 +37,7 @@ class AThe_AwakeningPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	AThe_AwakeningPlayerController();
 	void NotifyRawInputKey(const FKey& Key);
 
 protected:
@@ -56,4 +57,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;
+
+private:
+
+	UPROPERTY()
+	TObjectPtr<UTAScanningComponent> ScanningComponent;
 };

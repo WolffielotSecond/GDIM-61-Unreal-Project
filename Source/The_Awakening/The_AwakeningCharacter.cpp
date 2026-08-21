@@ -19,6 +19,7 @@
 #include "CollisionQueryParams.h"
 #include "Movement/TAParkourComponent.h"
 #include "Inventory/TAInventoryComponent.h"
+#include "Scan/TAScanningComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "UI/TAPromptComponent.h"
@@ -170,7 +171,65 @@ void AThe_AwakeningCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 				this,
 				&AThe_AwakeningCharacter::ToggleInventory);
 		}
+
+		// Scan
+		if (ScanAction)
+		{
+			EnhancedInputComponent->BindAction(
+				ScanAction,
+				ETriggerEvent::Started,
+				this,
+				&AThe_AwakeningCharacter::OnScanStarted
+			);
+
+			EnhancedInputComponent->BindAction(
+				ScanAction,
+				ETriggerEvent::Completed,
+				this,
+				&AThe_AwakeningCharacter::OnScanEnded
+			);
+		}
 	}
+}
+
+//IA Scan的started
+void AThe_AwakeningCharacter::OnScanStarted(const FInputActionValue& Value)
+{
+	AController* CharacterController = GetController();
+	if (!CharacterController)
+	{
+		return;
+	}
+
+	UTAScanningComponent* ScanningComponent =
+		CharacterController->FindComponentByClass<UTAScanningComponent>();
+
+	if (!ScanningComponent)
+	{
+		return;
+	}
+
+	ScanningComponent->StartScan();
+}
+
+//IA Scan的ended
+void AThe_AwakeningCharacter::OnScanEnded(const FInputActionValue& Value)
+{
+	AController* CharacterController = GetController();
+	if (!CharacterController)
+	{
+		return;
+	}
+
+	UTAScanningComponent* ScanningComponent =
+		CharacterController->FindComponentByClass<UTAScanningComponent>();
+
+	if (!ScanningComponent)
+	{
+		return;
+	}
+
+	ScanningComponent->EndScan();
 }
 
 void AThe_AwakeningCharacter::Move(const FInputActionValue& Value)

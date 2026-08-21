@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "The_AwakeningPlayerController.h"
+#include "Scan/TAScanningComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "InputMappingContext.h"
@@ -9,6 +10,12 @@
 #include "Widgets/Input/SVirtualJoystick.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Core/TAInputIconSubsystem.h"
+
+
+AThe_AwakeningPlayerController::AThe_AwakeningPlayerController()
+{
+	ScanningComponent = CreateDefaultSubobject<UTAScanningComponent>(TEXT("ScanComponent"));
+}
 
 bool FTAInputDeviceDetector::HandleKeyDownEvent(FSlateApplication& SoftApp, const FKeyEvent& InKeyEvent)
 {
