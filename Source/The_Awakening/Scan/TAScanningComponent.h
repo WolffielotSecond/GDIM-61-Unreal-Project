@@ -7,6 +7,8 @@
 #include "Components/ActorComponent.h"
 #include "TAScanningComponent.generated.h"
 
+class ATAScanningActor;
+
 UENUM(BlueprintType)
 enum class ETAScanState : uint8
 {
@@ -26,7 +28,7 @@ public:
 	// Sets default values for this component's properties
 	UTAScanningComponent();
 	ETAScanState GetScanState() const;
-	AActor* GetScanPPActor();
+	ATAScanningActor* GetScanPPActor();
 	bool StartScan();
 	bool EndScan();
 
@@ -72,10 +74,10 @@ private:
 	TObjectPtr<UMaterialParameterCollection> ScanParameterCollection;
 		
 
-	ETAScanState ScanState = ETAScanState::FadedIn;
+	ETAScanState ScanState = ETAScanState::FadedOut;
 
 	UPROPERTY()
-	TObjectPtr<AActor> ScanActor;
+	TObjectPtr<ATAScanningActor> ScanActor;
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> PostProcessMID;

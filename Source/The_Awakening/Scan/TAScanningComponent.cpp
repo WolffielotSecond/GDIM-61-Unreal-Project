@@ -3,6 +3,11 @@
 
 #include "Scan/TAScanningComponent.h"
 
+#include "Scan/TAScanningActor.h"
+#include "Components/PostProcessComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Curves/CurveFloat.h"
+#include "Materials/MaterialInterface.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetMaterialLibrary.h"
 
@@ -23,6 +28,26 @@ UTAScanningComponent::UTAScanningComponent()
 	if (MPCRef.Succeeded())
 	{
 		ScanParameterCollection = MPCRef.Object;
+	}
+
+	// Blend Curve
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> BlendCurveRef(
+		TEXT("/Game/Materials/Scan/Curves/CRV_Scan_Blend.CRV_Scan_Blend")
+	);
+
+	if (BlendCurveRef.Succeeded())
+	{
+		BlendCurve = BlendCurveRef.Object;
+	}
+
+	// Post Process Material
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> PostProcessMaterialRef(
+		TEXT("/Game/Materials/Scan/M_PostProcess.M_PostProcess")
+	);
+
+	if (PostProcessMaterialRef.Succeeded())
+	{
+		PostProcessMaterial = PostProcessMaterialRef.Object;
 	}
 
 }
@@ -244,17 +269,110 @@ bool UTAScanningComponent::UpdateScanTime(float DeltaTime)
 	return true;
 }
 
-AActor* UTAScanningComponent::GetScanPPActor()
+ATAScanningActor* UTAScanningComponent::GetScanPPActor()
 {
-	return nullptr;
+	if (IsValid(ScanActor))
+	{
+		return ScanActor;
+	}
+
+	if (!GetWorld())
+	{
+		return nullptr;
+	}
+
+	// Spawn Scan Actor
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = GetOwner();
+
+	ScanActor = GetWorld()->SpawnActor<ATAScanningActor>(
+		ATAScanningActor::StaticClass(),
+		FTransform::Identity,
+		SpawnParams
+	);
+
+	if (!IsValid(ScanActor))
+	{
+		return nullptr;
+	}
+
+	// 如果还没有 MID，就根据 PostProcessMaterial 创建
+	if (!IsValid(PostProcessMID))
+	{
+		if (!IsValid(PostProcessMaterial))
+		{
+			return ScanActor;
+		}
+
+		PostProcessMID = UMaterialInstanceDynamic::Create(
+			PostProcessMaterial,
+			this
+		);
+	}
+
+	if (!IsValid(PostProcessMID))
+	{
+		return ScanActor;
+	}
+
+	// 获取 Scan Actor 里的 Post Process Component
+	UPostProcessComponent* PostProcessComponent =
+		ScanActor->GetPostProcessComponent();
+
+	if (!IsValid(PostProcessComponent))
+	{
+		return ScanActor;
+	}
+
+	// 对应蓝图：
+	// Make Weighted Blendable
+	// Weight = 1
+	// Object = PPMID
+	FWeightedBlendable WeightedBlendable;
+	WeightedBlendable.Weight = 1.0f;
+	WeightedBlendable.Object = PostProcessMID;
+
+	// 对应 Set Members in Post Process Settings
+	PostProcessComponent->Settings.WeightedBlendables.Array.Empty();
+	PostProcessComponent->Settings.WeightedBlendables.Array.Add(WeightedBlendable);
+
+	return ScanActor;
 }
 
 void UTAScanningComponent::DestroyScanPPActor()
 {
+	if (IsValid(ScanActor) && bDestroyActor)
+	{
+		ScanActor->Destroy();
+		ScanActor = nullptr;
+	}
 }
 
 void UTAScanningComponent::UpdateScanPPBlendWeight()
 {
+	float BlendWeight = ScanNormalizedTime;
+
+	if (IsValid(BlendCurve))
+	{
+		BlendWeight = BlendCurve->GetFloatValue(ScanNormalizedTime);
+	}
+
+	ATAScanningActor* CurrentScanActor = GetScanPPActor();
+
+	if (!IsValid(CurrentScanActor))
+	{
+		return;
+	}
+
+	UPostProcessComponent* PostProcessComponent =
+		CurrentScanActor->GetPostProcessComponent();
+
+	if (!IsValid(PostProcessComponent))
+	{
+		return;
+	}
+
+	PostProcessComponent->BlendWeight = BlendWeight;
 }
 
 bool UTAScanningComponent::StartScan()
