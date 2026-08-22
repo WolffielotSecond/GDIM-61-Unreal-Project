@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/PostProcessComponent.h"
+#include "NiagaraComponent.h"
 #include "TAScanningActor.generated.h"
 
 UCLASS()
@@ -21,7 +22,19 @@ public:
 		return PostProcessComponent;
 	}
 
+	UNiagaraComponent* GetNiagaraComponent() const
+	{
+		return NiagaraComponent;
+	}
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Scan")
+	TObjectPtr<USceneComponent> DefaultSceneRoot;
+
+	UPROPERTY(VisibleAnywhere, Category = "Scan")
 	TObjectPtr<UPostProcessComponent> PostProcessComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Scan")
+	TObjectPtr<UNiagaraComponent> NiagaraComponent;
+
 };

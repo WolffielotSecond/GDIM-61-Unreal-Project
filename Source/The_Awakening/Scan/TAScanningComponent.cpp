@@ -42,7 +42,7 @@ UTAScanningComponent::UTAScanningComponent()
 
 	// Post Process Material
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> PostProcessMaterialRef(
-		TEXT("/Game/Materials/Scan/M_PostProcess.M_PostProcess")
+		TEXT("/Game/Materials/Scan/MI_Scan_PostProcess.MI_Scan_PostProcess")
 	);
 
 	if (PostProcessMaterialRef.Succeeded())
@@ -115,6 +115,7 @@ void UTAScanningComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		case ETAScanState::FadedOut:
 			break;
 
+
 		case ETAScanState::Invalid:
 			return;
 	}
@@ -144,6 +145,23 @@ void UTAScanningComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			1.0f
 		)
 	);
+	const FVector SnappedLocation = PlayerLocation.GridSnap(GridCellSize);
+
+	// ¸üÐÂ Niagara Î»ÖÃ
+	if (IsValid(ScanActor))
+	{
+		UNiagaraComponent* ScanNiagara = ScanActor->GetNiagaraComponent();
+
+		if (IsValid(ScanNiagara))
+		{
+			ScanNiagara->SetWorldLocation(
+				SnappedLocation,
+				false,
+				nullptr,
+				ETeleportType::TeleportPhysics
+			);
+		}
+	}
 }
 
 ETAScanState UTAScanningComponent::GetScanState() const
@@ -177,6 +195,15 @@ bool UTAScanningComponent::UpdateScanState(ETAScanState NewState, bool bForce)
 				0.0f
 			);
 			SetComponentTickEnabled(true);
+
+			if (ATAScanningActor* CurrentScanActor = GetScanPPActor())
+			{
+				if (UNiagaraComponent* ScanNiagara = CurrentScanActor->GetNiagaraComponent())
+				{
+					ScanNiagara->SetVisibility(true);
+				}
+			}
+
 			break;
 		
 		default:
@@ -209,10 +236,23 @@ bool UTAScanningComponent::UpdateScanState(ETAScanState NewState, bool bForce)
 
 			UpdateScanPPBlendWeight();
 
+			if (ATAScanningActor* CurrentScanActor = GetScanPPActor())
+			{
+				if (UNiagaraComponent* ScanNiagara = CurrentScanActor->GetNiagaraComponent())
+				{
+					ScanNiagara->SetVisibility(false);
+				}
+			}
+
 			SetComponentTickEnabled(false);
 			DestroyScanPPActor();
 			break;
-
+		/*
+		case ETAScanState::Invalid:
+			SetComponentTickEnabled(false);
+			DestroyScanPPActor();
+			break;
+*/
 		default:
 			break;
 	}

@@ -24,7 +24,8 @@ public class The_Awakening : ModuleRules
 			"Slate",
             "SlateCore",
             "Json",
-			"JsonUtilities"
+			"JsonUtilities",
+			"Niagara"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
