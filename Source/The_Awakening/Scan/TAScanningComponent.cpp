@@ -6,6 +6,7 @@
 #include "Scan/TAScanningActor.h"
 #include "Components/PostProcessComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
 #include "Curves/CurveFloat.h"
 #include "Materials/MaterialInterface.h"
 #include "UObject/ConstructorHelpers.h"
@@ -92,7 +93,7 @@ void UTAScanningComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	UpdateScanTime(DeltaTime);
-
+	/*
 	//debug print time
 	if (GEngine)
 	{
@@ -103,7 +104,7 @@ void UTAScanningComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			FString::Printf(TEXT("ScanNormalizedTime: %.3f"), ScanNormalizedTime)
 		);
 	}
-
+	*/
 	switch (ScanState)
 	{
 		case ETAScanState::FadeIn:
@@ -196,11 +197,23 @@ bool UTAScanningComponent::UpdateScanState(ETAScanState NewState, bool bForce)
 			);
 			SetComponentTickEnabled(true);
 
-			if (ATAScanningActor* CurrentScanActor = GetScanPPActor())
+			if (UMaterialParameterCollectionInstance* MPCInstance =
+				GetWorld()->GetParameterCollectionInstance(ScanParameterCollection))
 			{
-				if (UNiagaraComponent* ScanNiagara = CurrentScanActor->GetNiagaraComponent())
+				float UpgradedValue = 0.0f;
+
+				if (MPCInstance->GetScalarParameterValue(
+					FName("bUpgraded"),
+					UpgradedValue))
 				{
-					ScanNiagara->SetVisibility(true);
+					if (ATAScanningActor* CurrentScanActor = GetScanPPActor())
+					{
+						if (UNiagaraComponent* ScanNiagara =
+							CurrentScanActor->GetNiagaraComponent())
+						{
+							ScanNiagara->SetVisibility(UpgradedValue > 0.0f);
+						}
+					}
 				}
 			}
 
