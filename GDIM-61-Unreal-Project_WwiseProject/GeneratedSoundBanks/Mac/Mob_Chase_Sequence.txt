@@ -1,0 +1,6 @@
+Event	ID	Name			Wwise Object Path	Notes
+	317213708	Event_SFX_Creature_Crushed_01			\Mob Audio Events\TA_Mob_ChaceSequence_1\Event_SFX_Creature_Crushed_01	
+
+In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
+	947832319	SFX_Creature_Crushed_01	.cache\AA\{AA51DD7D-4327-4987-0293-94F3F9A4F346}.wem		\Containers\SFX_Mobs\TAMob_ChaseSequence_1\SFX_Creature_Crushed_01		360096
+

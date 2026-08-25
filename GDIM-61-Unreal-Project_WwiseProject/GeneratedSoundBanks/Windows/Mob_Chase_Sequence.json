@@ -1,0 +1,47 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "65449826",
+    "Type": "User",
+    "GUID": "{379A8FC6-4E3B-4419-BBD0-599EF5DA93AE}",
+    "Language": "SFX",
+    "Hash": "{D35280F3-898F-5C02-DA12-42BED11598B6}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Mob_Chase_Sequence",
+    "ShortName": "Mob_Chase_Sequence",
+    "Path": "Mob_Chase_Sequence.bnk",
+    "Media": [
+     {
+      "Id": "947832319",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "SFX_Creature_Crushed_01.wav",
+      "CachePath": "AA/{AA51DD7D-4327-4987-0293-94F3F9A4F346}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "317213708",
+      "Name": "Event_SFX_Creature_Crushed_01",
+      "ObjectPath": "\\Events\\Mob Audio Events\\TA_Mob_ChaceSequence_1\\Event_SFX_Creature_Crushed_01",
+      "GUID": "{CD574DDD-ABB1-4961-88F5-E260D45F9672}",
+      "DurationType": "OneShot",
+      "DurationMin": "1.875",
+      "DurationMax": "1.875",
+      "MediaRefs": [
+       {
+        "Id": "947832319"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{27E621E6-DC60-A30D-7AF5-C01B9C565AC9}"
+ }
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{EE67E5F1-1BB1-4448-9324-2B6BCFFC6E43}" SchemaVersion="133">
+	<Events>
+		<WorkUnit Name="Mob Audio Events" ID="{EE67E5F1-1BB1-4448-9324-2B6BCFFC6E43}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="TA_Mob_ChaceSequence_1" ID="{E420E9A7-0166-4387-BD7D-227170DE844E}" ShortID="466655881">
+					<ChildrenList>
+						<Event Name="Event_SFX_Creature_Crushed_01" ID="{CD574DDD-ABB1-4961-88F5-E260D45F9672}">
+							<ChildrenList>
+								<Action Name="" ID="{18DD0519-B35C-4D44-B04D-EC8E84227752}" ShortID="878777479">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Creature_Crushed_01" ID="{8EFD6697-DC47-4978-AAD4-DB605C3447CA}" WorkUnitID="{775492CD-F7DA-47E8-9482-48BA5603DDEF}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
+	</Events>
+</WwiseDocument>

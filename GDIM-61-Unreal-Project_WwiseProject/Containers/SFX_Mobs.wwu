@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{775492CD-F7DA-47E8-9482-48BA5603DDEF}" SchemaVersion="133">
+	<Containers>
+		<WorkUnit Name="SFX_Mobs" ID="{775492CD-F7DA-47E8-9482-48BA5603DDEF}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="TAMob_ChaseSequence_1" ID="{8FD3A549-4CBD-4E2A-A802-5B8D347D7F64}" ShortID="759227534">
+					<ChildrenList>
+						<Sound Name="SFX_Creature_Crushed_01" ID="{8EFD6697-DC47-4978-AAD4-DB605C3447CA}" ShortID="768968519">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="SFX_Creature_Crushed_01" ID="{0431CE8F-44D2-45E1-99F2-9DD157EF59DC}">
+									<Language>SFX</Language>
+									<AudioFile>SFX_Creature_Crushed_01.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="947832319"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ActiveSourceList>
+								<ActiveSource Name="SFX_Creature_Crushed_01" ID="{0431CE8F-44D2-45E1-99F2-9DD157EF59DC}" Platform="Linked"/>
+							</ActiveSourceList>
+						</Sound>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
+	</Containers>
+</WwiseDocument>

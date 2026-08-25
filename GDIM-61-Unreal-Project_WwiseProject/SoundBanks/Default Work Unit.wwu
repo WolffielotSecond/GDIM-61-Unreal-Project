@@ -10,6 +10,13 @@
 					<ObjectExclusionList/>
 					<GameSyncExclusionList/>
 				</SoundBank>
+				<SoundBank Name="Mob_Chase_Sequence" ID="{379A8FC6-4E3B-4419-BBD0-599EF5DA93AE}">
+					<ObjectInclusionList>
+						<ObjectRef Name="Event_SFX_Creature_Crushed_01" ID="{CD574DDD-ABB1-4961-88F5-E260D45F9672}" WorkUnitID="{EE67E5F1-1BB1-4448-9324-2B6BCFFC6E43}" Origin="Manual" Filter="7"/>
+					</ObjectInclusionList>
+					<ObjectExclusionList/>
+					<GameSyncExclusionList/>
+				</SoundBank>
 			</ChildrenList>
 		</WorkUnit>
 	</SoundBanks>

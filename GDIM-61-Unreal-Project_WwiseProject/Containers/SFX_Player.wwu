@@ -6,6 +6,21 @@
 				<Folder Name="Combat" ID="{CE2E8B7F-66D5-4D41-9651-FD107C8131F9}" ShortID="370904558">
 					<ChildrenList>
 						<Sound Name="hitblood1" ID="{ED2A2034-E516-4E08-B3CE-2EF8F9B4E46D}" ShortID="935199004">
+							<PropertyList>
+								<Property Name="Pitch" Type="int32">
+									<ModifierList>
+										<ModifierInfo>
+											<Modifier Name="" ID="{3C3FB936-BF14-43EF-B8C0-B902634097F1}">
+												<PropertyList>
+													<Property Name="Enabled" Type="bool" Value="True"/>
+													<Property Name="Max" Type="Real64" Value="250"/>
+													<Property Name="Min" Type="Real64" Value="-200"/>
+												</PropertyList>
+											</Modifier>
+										</ModifierInfo>
+									</ModifierList>
+								</Property>
+							</PropertyList>
 							<ReferenceList>
 								<Reference Name="Conversion">
 									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
