@@ -15,6 +15,7 @@ class UAbilitySystemComponent;
 class UTAParkourComponent;
 class UTAInventoryComponent;
 class UTAPromptComponent;
+class UTAInventoryPanelWidget;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -152,17 +153,14 @@ protected:
 
 	bool IsSafeToMoveToward(const FVector& WorldDirection) const;
 
-	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UUserWidget> InventoryWidgetClass;
-
 	UPROPERTY()
-	TObjectPtr<UUserWidget> InventoryWidgetInstance;
+	TObjectPtr<UTAInventoryPanelWidget> InventoryPanelInstance;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ToggleInventory();
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	bool IsInventoryOpen() const { return InventoryWidgetInstance != nullptr; }
+	bool IsInventoryOpen() const { return InventoryPanelInstance != nullptr; }
 
 public:
 	AThe_AwakeningCharacter();

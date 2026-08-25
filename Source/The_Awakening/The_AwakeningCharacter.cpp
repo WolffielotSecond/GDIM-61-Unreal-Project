@@ -25,6 +25,7 @@
 #include "UI/TAPromptComponent.h"
 #include "Core/TALocalizeSubsystem.h"
 #include "Core/TAInputIconSubsystem.h"
+#include "UI/Inventory/TAInventoryPanelWidget.h"
 
 AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 {
@@ -657,36 +658,35 @@ void AThe_AwakeningCharacter::ToggleInventory()
 	}
 
 	// 已打开 → 关闭
-	if (InventoryWidgetInstance)
+	if (InventoryPanelInstance && InventoryPanelInstance->IsInViewport())
 	{
-		InventoryWidgetInstance->RemoveFromParent();
-		InventoryWidgetInstance = nullptr;
+		InventoryPanelInstance->RemoveFromParent();
+		InventoryPanelInstance = nullptr;
 
 		PC->SetShowMouseCursor(false);
-		FInputModeGameOnly InputMode;
-		PC->SetInputMode(InputMode);
+		PC->SetInputMode(FInputModeGameOnly());
 		return;
 	}
 
-	// 未打开 → 打开
-	if (!InventoryWidgetClass)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("InventoryWidgetClass is not set."));
-		return;
-	}
+	// 打开
+	InventoryPanelInstance = CreateWidget<UTAInventoryPanelWidget>(
+		PC, UTAInventoryPanelWidget::StaticClass());
 
-	InventoryWidgetInstance = CreateWidget<UUserWidget>(PC, InventoryWidgetClass);
-	if (!InventoryWidgetInstance)
+	if (!InventoryPanelInstance)
 	{
 		return;
 	}
 
-	InventoryWidgetInstance->AddToViewport(10);
+	if (InventoryComponent)
+	{
+		InventoryPanelInstance->Init(InventoryComponent);
+	}
+
+	InventoryPanelInstance->AddToViewport(50);
 
 	PC->SetShowMouseCursor(true);
-
 	FInputModeGameAndUI InputMode;
-	InputMode.SetWidgetToFocus(InventoryWidgetInstance->TakeWidget());
+	InputMode.SetWidgetToFocus(InventoryPanelInstance->TakeWidget());
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputMode.SetHideCursorDuringCapture(false);
 	PC->SetInputMode(InputMode);

@@ -1,5 +1,6 @@
 #include "Inventory/TAInventoryComponent.h"
 #include "Inventory/TAItemDefinition.h"
+#include "Inventory/TAClothingDefinition.h"
 #include "Core/TALocalizeSubsystem.h"
 
 UTAInventoryComponent::UTAInventoryComponent()
@@ -10,17 +11,199 @@ UTAInventoryComponent::UTAInventoryComponent()
 void UTAInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	InitSlots();
-}
 
-void UTAInventoryComponent::InitSlots()
-{
-	Slots.SetNum(MaxSlots);
+	StorySlots.SetNum(StorySlotCount);
+	InitDefaultClothing();
+	RebuildFlattenedSlots();
+	NotifyUpdated();
 }
 
 void UTAInventoryComponent::NotifyUpdated()
 {
 	OnInventoryUpdated.Broadcast();
+}
+
+bool UTAInventoryComponent::BuildClothingInstance(UTAClothingDefinition* Def, FTAClothingInstance& OutInstance) const
+{
+	OutInstance = FTAClothingInstance();
+	if (!Def)
+	{
+		return false;
+	}
+
+	OutInstance.Definition = Def;
+	OutInstance.Pockets.Reset();
+
+	for (const FTAPocketDef& PocketDef : Def->Pockets)
+	{
+		FTAPocketRuntime Pocket;
+		Pocket.PocketId = PocketDef.PocketId.IsNone() ? TEXT("Main") : PocketDef.PocketId;
+		Pocket.Slots.SetNum(FMath::Max(0, PocketDef.SlotCount));
+		OutInstance.Pockets.Add(MoveTemp(Pocket));
+	}
+
+	// 没有配置口袋时给 0 格，避免空 Definition 被当成有效装备乱加东西
+	return OutInstance.Pockets.Num() > 0 || Def->GetTotalSlotCount() == 0;
+}
+
+void UTAInventoryComponent::InitDefaultClothing()
+{
+	if (DefaultInnerClothing)
+	{
+		BuildClothingInstance(DefaultInnerClothing, InnerClothing);
+	}
+	else
+	{
+		// 兜底：无 DA 时也有 2 格，避免背包全坏
+		InnerClothing = FTAClothingInstance();
+		FTAPocketRuntime Pocket;
+		Pocket.PocketId = TEXT("Main");
+		Pocket.Slots.SetNum(2);
+		InnerClothing.Pockets.Add(Pocket);
+	}
+
+	if (DefaultOuterClothing && DefaultOuterClothing->Layer == ETAClothingLayer::Outer)
+	{
+		BuildClothingInstance(DefaultOuterClothing, OuterClothing);
+	}
+	else
+	{
+		OuterClothing = FTAClothingInstance();
+	}
+}
+
+void UTAInventoryComponent::RebuildFlattenedSlots()
+{
+	FlattenedSlots.Reset();
+
+	auto AppendClothing = [this](const FTAClothingInstance& Clothing)
+		{
+			for (const FTAPocketRuntime& Pocket : Clothing.Pockets)
+			{
+				FlattenedSlots.Append(Pocket.Slots);
+			}
+		};
+
+	AppendClothing(InnerClothing);
+	if (OuterClothing.IsValid())
+	{
+		AppendClothing(OuterClothing);
+	}
+}
+
+bool UTAInventoryComponent::ResolveFlatIndex(int32 FlatIndex, FTAClothingInstance*& OutClothing, int32& OutPocketIndex, int32& OutSlotIndex)
+{
+	OutClothing = nullptr;
+	OutPocketIndex = INDEX_NONE;
+	OutSlotIndex = INDEX_NONE;
+
+	if (FlatIndex < 0)
+	{
+		return false;
+	}
+
+	int32 Remaining = FlatIndex;
+
+	auto Walk = [&](FTAClothingInstance& Clothing) -> bool
+		{
+			for (int32 p = 0; p < Clothing.Pockets.Num(); ++p)
+			{
+				const int32 Num = Clothing.Pockets[p].Slots.Num();
+				if (Remaining < Num)
+				{
+					OutClothing = &Clothing;
+					OutPocketIndex = p;
+					OutSlotIndex = Remaining;
+					return true;
+				}
+				Remaining -= Num;
+			}
+			return false;
+		};
+
+	if (Walk(InnerClothing))
+	{
+		return true;
+	}
+	if (OuterClothing.IsValid() && Walk(OuterClothing))
+	{
+		return true;
+	}
+	return false;
+}
+
+int32 UTAInventoryComponent::TryAddItemToClothing(FTAClothingInstance& Clothing, UTAItemDefinition* ItemDef, int32 Count)
+{
+	if (!ItemDef || Count <= 0)
+	{
+		return 0;
+	}
+
+	int32 Remaining = Count;
+
+	// 1) 堆叠
+	if (ItemDef->bCanStack)
+	{
+		for (FTAPocketRuntime& Pocket : Clothing.Pockets)
+		{
+			for (FTAInventorySlot& Slot : Pocket.Slots)
+			{
+				if (Slot.ItemDef == ItemDef && Slot.Count < ItemDef->MaxStack)
+				{
+					const int32 CanAdd = FMath::Min(Remaining, ItemDef->MaxStack - Slot.Count);
+					Slot.Count += CanAdd;
+					Remaining -= CanAdd;
+					if (Remaining <= 0)
+					{
+						return Count;
+					}
+				}
+			}
+		}
+	}
+
+	// 2) 空格
+	while (Remaining > 0)
+	{
+		FTAInventorySlot* EmptySlot = nullptr;
+		for (FTAPocketRuntime& Pocket : Clothing.Pockets)
+		{
+			for (FTAInventorySlot& Slot : Pocket.Slots)
+			{
+				if (Slot.IsEmpty())
+				{
+					EmptySlot = &Slot;
+					break;
+				}
+			}
+			if (EmptySlot)
+			{
+				break;
+			}
+		}
+
+		if (!EmptySlot)
+		{
+			break;
+		}
+
+		EmptySlot->ItemDef = ItemDef;
+		if (ItemDef->bCanStack)
+		{
+			const int32 CanAdd = FMath::Min(Remaining, ItemDef->MaxStack);
+			EmptySlot->Count = CanAdd;
+			EmptySlot->Durability = 0.f;
+			Remaining -= CanAdd;
+		}
+		else
+		{
+			EmptySlot->Count = 1;
+			EmptySlot->Durability = (ItemDef->ItemType == ETAItemType::Weapon) ? ItemDef->MaxDurability : 0.f;
+			Remaining -= 1;
+		}
+	}
+
+	return Count - Remaining;
 }
 
 int32 UTAInventoryComponent::TryAddItem(UTAItemDefinition* ItemDef, int32 Count)
@@ -31,66 +214,18 @@ int32 UTAInventoryComponent::TryAddItem(UTAItemDefinition* ItemDef, int32 Count)
 	}
 
 	int32 Remaining = Count;
+	Remaining -= TryAddItemToClothing(InnerClothing, ItemDef, Remaining);
 
-	// 1) 可堆叠：先填已有堆
-	if (ItemDef->bCanStack)
+	if (Remaining > 0 && OuterClothing.IsValid())
 	{
-		for (FTAInventorySlot& Slot : Slots)
-		{
-			if (Slot.ItemDef == ItemDef && Slot.Count < ItemDef->MaxStack)
-			{
-				const int32 CanAdd = FMath::Min(Remaining, ItemDef->MaxStack - Slot.Count);
-				Slot.Count += CanAdd;
-				Remaining -= CanAdd;
-				if (Remaining <= 0)
-				{
-					ReorganizeInventory();
-					NotifyUpdated();
-					return Count;
-				}
-			}
-		}
-	}
-
-	// 2) 空格子
-	while (Remaining > 0)
-	{
-		int32 EmptyIndex = INDEX_NONE;
-		for (int32 i = 0; i < Slots.Num(); ++i)
-		{
-			if (Slots[i].IsEmpty())
-			{
-				EmptyIndex = i;
-				break;
-			}
-		}
-
-		if (EmptyIndex == INDEX_NONE)
-		{
-			break; // 满了
-		}
-
-		FTAInventorySlot& Slot = Slots[EmptyIndex];
-		Slot.ItemDef = ItemDef;
-
-		if (ItemDef->bCanStack)
-		{
-			const int32 CanAdd = FMath::Min(Remaining, ItemDef->MaxStack);
-			Slot.Count = CanAdd;
-			Slot.Durability = 0.f;
-			Remaining -= CanAdd;
-		}
-		else
-		{
-			Slot.Count = 1;
-			Slot.Durability = (ItemDef->ItemType == ETAItemType::Weapon) ? ItemDef->MaxDurability : 0.f;
-			Remaining -= 1;
-		}
+		Remaining -= TryAddItemToClothing(OuterClothing, ItemDef, Remaining);
 	}
 
 	const int32 Added = Count - Remaining;
 	if (Added > 0)
 	{
+		ReorganizeInventory();
+		RebuildFlattenedSlots();
 		NotifyUpdated();
 	}
 	return Added;
@@ -98,22 +233,29 @@ int32 UTAInventoryComponent::TryAddItem(UTAItemDefinition* ItemDef, int32 Count)
 
 int32 UTAInventoryComponent::RemoveFromSlot(int32 SlotIndex, int32 Count)
 {
-	if (!Slots.IsValidIndex(SlotIndex) || Count <= 0 || Slots[SlotIndex].IsEmpty())
+	FTAClothingInstance* Clothing = nullptr;
+	int32 PocketIndex = INDEX_NONE;
+	int32 SlotInPocket = INDEX_NONE;
+	if (!ResolveFlatIndex(SlotIndex, Clothing, PocketIndex, SlotInPocket) || Count <= 0)
 	{
 		return 0;
 	}
 
-	FTAInventorySlot& Slot = Slots[SlotIndex];
+	FTAInventorySlot& Slot = Clothing->Pockets[PocketIndex].Slots[SlotInPocket];
+	if (Slot.IsEmpty())
+	{
+		return 0;
+	}
+
 	const int32 Removed = FMath::Min(Count, Slot.Count);
 	Slot.Count -= Removed;
-
 	if (Slot.Count <= 0)
 	{
-		Slot.ItemDef = nullptr;
-		Slot.Count = 0;
-		Slot.Durability = 0.f;
+		Slot = FTAInventorySlot();
 	}
+
 	ReorganizeInventory();
+	RebuildFlattenedSlots();
 	NotifyUpdated();
 	return Removed;
 }
@@ -126,24 +268,40 @@ int32 UTAInventoryComponent::GetItemCount(UTAItemDefinition* ItemDef) const
 	}
 
 	int32 Total = 0;
-	for (const FTAInventorySlot& Slot : Slots)
-	{
-		if (Slot.ItemDef == ItemDef)
+	auto CountIn = [&](const FTAClothingInstance& Clothing)
 		{
-			Total += Slot.Count;
-		}
+			for (const FTAPocketRuntime& Pocket : Clothing.Pockets)
+			{
+				for (const FTAInventorySlot& Slot : Pocket.Slots)
+				{
+					if (Slot.ItemDef == ItemDef)
+					{
+						Total += Slot.Count;
+					}
+				}
+			}
+		};
+
+	CountIn(InnerClothing);
+	if (OuterClothing.IsValid())
+	{
+		CountIn(OuterClothing);
 	}
 	return Total;
 }
 
 bool UTAInventoryComponent::IsSlotEmpty(int32 SlotIndex) const
 {
-	return !Slots.IsValidIndex(SlotIndex) || Slots[SlotIndex].IsEmpty();
+	if (!FlattenedSlots.IsValidIndex(SlotIndex))
+	{
+		return true;
+	}
+	return FlattenedSlots[SlotIndex].IsEmpty();
 }
 
 bool UTAInventoryComponent::HasEmptySlot() const
 {
-	for (const FTAInventorySlot& Slot : Slots)
+	for (const FTAInventorySlot& Slot : FlattenedSlots)
 	{
 		if (Slot.IsEmpty())
 		{
@@ -157,14 +315,21 @@ bool UTAInventoryComponent::DropFromSlot(int32 SlotIndex, int32 Count, FTAInvent
 {
 	OutDropped = FTAInventorySlot();
 
-	if (!Slots.IsValidIndex(SlotIndex) || Count <= 0 || Slots[SlotIndex].IsEmpty())
+	FTAClothingInstance* Clothing = nullptr;
+	int32 PocketIndex = INDEX_NONE;
+	int32 SlotInPocket = INDEX_NONE;
+	if (!ResolveFlatIndex(SlotIndex, Clothing, PocketIndex, SlotInPocket) || Count <= 0)
 	{
 		return false;
 	}
 
-	FTAInventorySlot& Slot = Slots[SlotIndex];
-	const int32 DropCount = FMath::Min(Count, Slot.Count);
+	FTAInventorySlot& Slot = Clothing->Pockets[PocketIndex].Slots[SlotInPocket];
+	if (Slot.IsEmpty())
+	{
+		return false;
+	}
 
+	const int32 DropCount = FMath::Min(Count, Slot.Count);
 	OutDropped.ItemDef = Slot.ItemDef;
 	OutDropped.Count = DropCount;
 	OutDropped.Durability = Slot.Durability;
@@ -172,11 +337,48 @@ bool UTAInventoryComponent::DropFromSlot(int32 SlotIndex, int32 Count, FTAInvent
 	Slot.Count -= DropCount;
 	if (Slot.Count <= 0)
 	{
-		Slot.ItemDef = nullptr;
-		Slot.Count = 0;
-		Slot.Durability = 0.f;
+		Slot = FTAInventorySlot();
 	}
+
 	ReorganizeInventory();
+	RebuildFlattenedSlots();
+	NotifyUpdated();
+	return true;
+}
+
+bool UTAInventoryComponent::EquipOuter(UTAClothingDefinition* OuterDef)
+{
+	if (!OuterDef || OuterDef->Layer != ETAClothingLayer::Outer)
+	{
+		return false;
+	}
+	if (OuterClothing.IsValid())
+	{
+		// 已有外套：先卸再装（由 UI/玩法决定）；这里直接拒绝
+		return false;
+	}
+
+	if (!BuildClothingInstance(OuterDef, OuterClothing))
+	{
+		return false;
+	}
+
+	RebuildFlattenedSlots();
+	NotifyUpdated();
+	return true;
+}
+
+bool UTAInventoryComponent::UnequipOuter(FTAClothingInstance& OutInstance)
+{
+	OutInstance = FTAClothingInstance();
+	if (!OuterClothing.IsValid())
+	{
+		return false;
+	}
+
+	OutInstance = OuterClothing;
+	OuterClothing = FTAClothingInstance();
+	RebuildFlattenedSlots();
 	NotifyUpdated();
 	return true;
 }
@@ -204,44 +406,44 @@ FString UTAInventoryComponent::GetSortName(UTAItemDefinition* ItemDef) const
 			}
 		}
 	}
-
 	return TextId;
 }
 
-void UTAInventoryComponent::ReorganizeInventory()
+void UTAInventoryComponent::ReorganizeClothing(FTAClothingInstance& Clothing)
 {
+	// 收集该衣服所有非空格
 	TArray<FTAInventorySlot> Packed;
-	Packed.Reserve(Slots.Num());
-	for (const FTAInventorySlot& Slot : Slots)
+	int32 TotalSlots = 0;
+	for (const FTAPocketRuntime& Pocket : Clothing.Pockets)
 	{
-		if (!Slot.IsEmpty())
+		TotalSlots += Pocket.Slots.Num();
+		for (const FTAInventorySlot& Slot : Pocket.Slots)
 		{
-			Packed.Add(Slot);
+			if (!Slot.IsEmpty())
+			{
+				Packed.Add(Slot);
+			}
 		}
 	}
 
-	if (Packed.Num() == 0)
+	if (TotalSlots <= 0)
 	{
 		return;
 	}
 
-	TMap<UTAItemDefinition*, FTAInventorySlot> MergeMap;
+	// 合并堆叠
+	TMap<UTAItemDefinition*, int32> StackCounts;
 	TArray<FTAInventorySlot> NonStackable;
 
 	for (const FTAInventorySlot& Slot : Packed)
 	{
-		UTAItemDefinition* Def = Slot.ItemDef;
-		if (!Def)
+		if (!Slot.ItemDef)
 		{
 			continue;
 		}
-
-		if (Def->bCanStack)
+		if (Slot.ItemDef->bCanStack)
 		{
-			FTAInventorySlot& Merged = MergeMap.FindOrAdd(Def);
-			Merged.ItemDef = Def;
-			Merged.Count += Slot.Count;
-			Merged.Durability = 0.f;
+			StackCounts.FindOrAdd(Slot.ItemDef) += Slot.Count;
 		}
 		else
 		{
@@ -250,25 +452,20 @@ void UTAInventoryComponent::ReorganizeInventory()
 	}
 
 	TArray<FTAInventorySlot> Result;
-	Result.Reserve(Slots.Num());
-
-	for (const auto& Pair : MergeMap)
+	for (const auto& Pair : StackCounts)
 	{
 		UTAItemDefinition* Def = Pair.Key;
-		int32 Remaining = Pair.Value.Count;
+		int32 Remaining = Pair.Value;
 		const int32 MaxStack = FMath::Max(1, Def->MaxStack);
-
 		while (Remaining > 0)
 		{
 			FTAInventorySlot NewSlot;
 			NewSlot.ItemDef = Def;
 			NewSlot.Count = FMath::Min(Remaining, MaxStack);
-			NewSlot.Durability = 0.f;
 			Result.Add(NewSlot);
 			Remaining -= NewSlot.Count;
 		}
 	}
-
 	Result.Append(NonStackable);
 
 	Result.Sort([this](const FTAInventorySlot& A, const FTAInventorySlot& B)
@@ -279,31 +476,41 @@ void UTAInventoryComponent::ReorganizeInventory()
 			{
 				return DefA != nullptr;
 			}
-
 			if (DefA->ItemType != DefB->ItemType)
 			{
 				return static_cast<uint8>(DefA->ItemType) < static_cast<uint8>(DefB->ItemType);
 			}
-
-			const FString NameA = GetSortName(A.ItemDef);
-			const FString NameB = GetSortName(B.ItemDef);
-			const int32 NameCmp = NameA.Compare(NameB, ESearchCase::IgnoreCase);
+			const int32 NameCmp = GetSortName(A.ItemDef).Compare(GetSortName(B.ItemDef), ESearchCase::IgnoreCase);
 			if (NameCmp != 0)
 			{
 				return NameCmp < 0;
 			}
-
 			return A.Count > B.Count;
 		});
 
-	for (FTAInventorySlot& Slot : Slots)
+	// 写回口袋（按口袋顺序填满）
+	int32 WriteIndex = 0;
+	for (FTAPocketRuntime& Pocket : Clothing.Pockets)
 	{
-		Slot = FTAInventorySlot();
+		for (FTAInventorySlot& Slot : Pocket.Slots)
+		{
+			if (WriteIndex < Result.Num())
+			{
+				Slot = Result[WriteIndex++];
+			}
+			else
+			{
+				Slot = FTAInventorySlot();
+			}
+		}
 	}
+}
 
-	const int32 WriteNum = FMath::Min(Result.Num(), Slots.Num());
-	for (int32 i = 0; i < WriteNum; ++i)
+void UTAInventoryComponent::ReorganizeInventory()
+{
+	ReorganizeClothing(InnerClothing);
+	if (OuterClothing.IsValid())
 	{
-		Slots[i] = Result[i];
+		ReorganizeClothing(OuterClothing);
 	}
 }

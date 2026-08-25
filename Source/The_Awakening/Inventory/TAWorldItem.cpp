@@ -118,6 +118,10 @@ bool ATAWorldItem::TryPickupAsCurrency(AActor* Interactor)
 	const int32 Amount = ItemDef->Value * Count;
 	PS->AddMoney(Amount);
 	Count = 0;
+	if (UTAInventoryComponent* Inventory = Interactor->FindComponentByClass<UTAInventoryComponent>())
+	{
+		Inventory->NotifyUpdated();
+	}
 	return true;
 }
 
