@@ -153,6 +153,9 @@ protected:
 
 	bool IsSafeToMoveToward(const FVector& WorldDirection) const;
 
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UTAInventoryPanelWidget> InventoryPanelClass;
+
 	UPROPERTY()
 	TObjectPtr<UTAInventoryPanelWidget> InventoryPanelInstance;
 

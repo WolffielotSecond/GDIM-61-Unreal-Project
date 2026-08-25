@@ -657,7 +657,6 @@ void AThe_AwakeningCharacter::ToggleInventory()
 		return;
 	}
 
-	// 已打开 → 关闭
 	if (InventoryPanelInstance && InventoryPanelInstance->IsInViewport())
 	{
 		InventoryPanelInstance->RemoveFromParent();
@@ -668,20 +667,31 @@ void AThe_AwakeningCharacter::ToggleInventory()
 		return;
 	}
 
-	// 打开
-	InventoryPanelInstance = CreateWidget<UTAInventoryPanelWidget>(
-		PC, UTAInventoryPanelWidget::StaticClass());
+	UClass* PanelClass = nullptr;
+	if (InventoryPanelClass)
+	{
+		PanelClass = InventoryPanelClass.Get();
+	}
+	if (!PanelClass)
+	{
+		PanelClass = UTAInventoryPanelWidget::StaticClass();
+	}
 
+	UE_LOG(LogTemp, Warning, TEXT("Inventory panel class: %s"), *GetNameSafe(PanelClass));
+
+	InventoryPanelInstance = CreateWidget<UTAInventoryPanelWidget>(PC, PanelClass);
 	if (!InventoryPanelInstance)
 	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create inventory panel"));
 		return;
 	}
 
-	if (InventoryComponent)
+	if (!InventoryComponent)
 	{
-		InventoryPanelInstance->Init(InventoryComponent);
+		UE_LOG(LogTemp, Warning, TEXT("InventoryComponent is null"));
 	}
 
+	InventoryPanelInstance->Init(InventoryComponent);
 	InventoryPanelInstance->AddToViewport(50);
 
 	PC->SetShowMouseCursor(true);

@@ -1,101 +1,90 @@
 #include "UI/Inventory/TAClothingPanelWidget.h"
 #include "Inventory/TAClothingDefinition.h"
-#include "Inventory/TAItemDefinition.h"
+#include "UI/Inventory/TAInventorySlotWidget.h"
 #include "Components/CanvasPanel.h"
-#include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
+#include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
+#include "Components/UniformGridPanel.h"
+#include "Components/UniformGridSlot.h"
 #include "Blueprint/WidgetTree.h"
 #include "Engine/Texture2D.h"
-#include "UI/Inventory/TAInventorySlotWidget.h"
 
 void UTAClothingPanelWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	EnsureCanvas();
+	if (!SlotWidgetClass)
+	{
+		SlotWidgetClass = UTAInventorySlotWidget::StaticClass();
+	}
+	EnsureBindings();
 }
 
-void UTAClothingPanelWidget::EnsureCanvas()
+void UTAClothingPanelWidget::EnsureBindings()
 {
-	if (CanvasRoot)
-	{
-		return;
-	}
-
-	if (!WidgetTree)
-	{
-		return;
-	}
-
-	// 若蓝图有绑定则用绑定的
-	CanvasRoot = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("CanvasRoot")));
-	Image_Clothing = Cast<UImage>(GetWidgetFromName(TEXT("Image_Clothing")));
-
 	if (!CanvasRoot)
 	{
-		CanvasRoot = WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(), TEXT("CanvasRoot"));
-		WidgetTree->RootWidget = CanvasRoot;
+		CanvasRoot = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("CanvasRoot")));
 	}
-
 	if (!Image_Clothing)
 	{
-		Image_Clothing = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), TEXT("Image_Clothing"));
-		CanvasRoot->AddChild(Image_Clothing);
-
-		if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Image_Clothing->Slot))
-		{
-			ImageSlot->SetAnchors(FAnchors(0.5f, 0.5f));
-			ImageSlot->SetAlignment(FVector2D(0.5f, 0.5f));
-			ImageSlot->SetPosition(FVector2D::ZeroVector);
-			ImageSlot->SetSize(FVector2D(ClothingImageSize, ClothingImageSize));
-			ImageSlot->SetZOrder(1);
-		}
+		Image_Clothing = Cast<UImage>(GetWidgetFromName(TEXT("Image_Clothing")));
 	}
-
-	// 给 Canvas 一个期望尺寸，避免为 0
-	if (UCanvasPanelSlot* RootAsChild = Cast<UCanvasPanelSlot>(CanvasRoot->Slot))
+	if (!Box_Top)
 	{
-		// 作为子控件被 Panel 加入时可能有 Slot
+		Box_Top = Cast<UHorizontalBox>(GetWidgetFromName(TEXT("Box_Top")));
+	}
+	if (!Box_Bottom)
+	{
+		Box_Bottom = Cast<UHorizontalBox>(GetWidgetFromName(TEXT("Box_Bottom")));
+	}
+	if (!Box_Left)
+	{
+		Box_Left = Cast<UVerticalBox>(GetWidgetFromName(TEXT("Box_Left")));
+	}
+	if (!Box_Right)
+	{
+		Box_Right = Cast<UVerticalBox>(GetWidgetFromName(TEXT("Box_Right")));
 	}
 }
 
 void UTAClothingPanelWidget::ClearPanel()
 {
-	EnsureCanvas();
-
-	for (UUserWidget* SlotWidget : GeneratedSlots)
+	for (UWidget* Group : GeneratedGroups)
 	{
-		if (SlotWidget)
+		if (Group)
 		{
-			SlotWidget->RemoveFromParent();
+			Group->RemoveFromParent();
 		}
 	}
+	GeneratedGroups.Reset();
 	GeneratedSlots.Reset();
 
-	for (UWidget* Line : GeneratedLines)
-	{
-		if (Line)
-		{
-			Line->RemoveFromParent();
-		}
-	}
-	GeneratedLines.Reset();
-
 	CurrentDef = nullptr;
+	BuiltDef = nullptr;
+	BuiltFlatStart = INDEX_NONE;
 }
 
 void UTAClothingPanelWidget::SetClothingIcon(UTAClothingDefinition* Def)
 {
-	EnsureCanvas();
+	EnsureBindings();
 	if (!Image_Clothing)
 	{
 		return;
 	}
 
 	UTexture2D* Icon = nullptr;
-	if (Def && !Def->Icon.IsNull())
+	if (Def)
 	{
-		Icon = Def->Icon.LoadSynchronous();
+		// TSoftObjectPtr：
+		if (!Def->Icon.IsNull())
+		{
+			Icon = Def->Icon.LoadSynchronous();
+		}
+		// TObjectPtr 则改为：Icon = Def->Icon.Get();
 	}
 
 	if (Icon)
@@ -107,112 +96,18 @@ void UTAClothingPanelWidget::SetClothingIcon(UTAClothingDefinition* Def)
 	{
 		Image_Clothing->SetVisibility(ESlateVisibility::Hidden);
 	}
-
-	if (UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(Image_Clothing->Slot))
-	{
-		ImageSlot->SetAnchors(FAnchors(0.5f, 0.5f));
-		ImageSlot->SetAlignment(FVector2D(0.5f, 0.5f));
-		ImageSlot->SetPosition(FVector2D::ZeroVector);
-		ImageSlot->SetSize(FVector2D(ClothingImageSize, ClothingImageSize));
-	}
 }
 
-FVector2D UTAClothingPanelWidget::GetClothingImageTopLeft() const
+UPanelWidget* UTAClothingPanelWidget::GetBoxForSide(ETAPocketSlotSide Side) const
 {
-	// 图居中于 Canvas：左上角 = Canvas中心 - 半边长
-	const FVector2D Center = CanvasSize * 0.5f;
-	return Center - FVector2D(ClothingImageSize, ClothingImageSize) * 0.5f;
-}
-
-FVector2D UTAClothingPanelWidget::PocketAnchorToCanvas(const FVector2D& AnchorUV) const
-{
-	const FVector2D TopLeft = GetClothingImageTopLeft();
-	return TopLeft + FVector2D(
-		FMath::Clamp(AnchorUV.X, 0.f, 1.f) * ClothingImageSize,
-		FMath::Clamp(AnchorUV.Y, 0.f, 1.f) * ClothingImageSize);
-}
-
-FVector2D UTAClothingPanelWidget::ComputePocketSlotsOrigin(
-	const FVector2D& AnchorCanvas,
-	ETAPocketSlotSide Side,
-	int32 SlotCount) const
-{
-	const FVector2D TopLeft = GetClothingImageTopLeft();
-	const FVector2D BottomRight = TopLeft + FVector2D(ClothingImageSize, ClothingImageSize);
-
-	const int32 Rows = FMath::Max(1, FMath::CeilToInt(static_cast<float>(SlotCount) / static_cast<float>(SlotsPerRow)));
-	const int32 Cols = FMath::Min(SlotCount, SlotsPerRow);
-	const float BlockW = Cols * SlotSize + FMath::Max(0, Cols - 1) * SlotPadding;
-	const float BlockH = Rows * SlotSize + FMath::Max(0, Rows - 1) * SlotPadding;
-
-	FVector2D Origin = FVector2D::ZeroVector;
-
 	switch (Side)
 	{
-	case ETAPocketSlotSide::Right:
-		Origin.X = BottomRight.X + EdgeMargin;
-		Origin.Y = AnchorCanvas.Y - BlockH * 0.5f;
-		break;
-	case ETAPocketSlotSide::Left:
-		Origin.X = TopLeft.X - EdgeMargin - BlockW;
-		Origin.Y = AnchorCanvas.Y - BlockH * 0.5f;
-		break;
-	case ETAPocketSlotSide::Top:
-		Origin.X = AnchorCanvas.X - BlockW * 0.5f;
-		Origin.Y = TopLeft.Y - EdgeMargin - BlockH;
-		break;
-	case ETAPocketSlotSide::Bottom:
-		Origin.X = AnchorCanvas.X - BlockW * 0.5f;
-		Origin.Y = BottomRight.Y + EdgeMargin;
-		break;
+	case ETAPocketSlotSide::Top:    return Box_Top;
+	case ETAPocketSlotSide::Bottom: return Box_Bottom;
+	case ETAPocketSlotSide::Left:   return Box_Left;
+	case ETAPocketSlotSide::Right:  return Box_Right;
+	default: return Box_Right;
 	}
-
-	return Origin;
-}
-
-void UTAClothingPanelWidget::CreateLine(const FVector2D& From, const FVector2D& To)
-{
-	EnsureCanvas();
-	if (!CanvasRoot || !WidgetTree)
-	{
-		return;
-	}
-
-	UImage* LineImage = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass());
-	if (!LineImage)
-	{
-		return;
-	}
-
-	const FVector2D Delta = To - From;
-	const float Length = Delta.Size();
-	if (Length < 1.f)
-	{
-		return;
-	}
-
-	const float AngleDeg = FMath::RadiansToDegrees(FMath::Atan2(Delta.Y, Delta.X));
-	const FVector2D Mid = (From + To) * 0.5f;
-	const float Thickness = 2.f;
-
-	CanvasRoot->AddChild(LineImage);
-	if (UCanvasPanelSlot* LineSlot = Cast<UCanvasPanelSlot>(LineImage->Slot))
-	{
-		LineSlot->SetAnchors(FAnchors(0.f, 0.f));
-		LineSlot->SetAlignment(FVector2D(0.5f, 0.5f));
-		LineSlot->SetPosition(Mid);
-		LineSlot->SetSize(FVector2D(Length, Thickness));
-		LineSlot->SetZOrder(0);
-	}
-
-	LineImage->SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
-	FWidgetTransform Xform;
-	Xform.Angle = AngleDeg;
-	LineImage->SetRenderTransform(Xform);
-	LineImage->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.7f));
-	LineImage->SetVisibility(ESlateVisibility::HitTestInvisible);
-
-	GeneratedLines.Add(LineImage);
 }
 
 void UTAClothingPanelWidget::CreateSlotsForPocket(
@@ -220,98 +115,156 @@ void UTAClothingPanelWidget::CreateSlotsForPocket(
 	const FTAPocketDef& PocketDef,
 	int32& InOutFlatIndex)
 {
-	EnsureCanvas();
-	if (!CanvasRoot || !SlotWidgetClass)
+	EnsureBindings();
+	if (!SlotWidgetClass || !WidgetTree)
 	{
-		UE_LOG(LogTemp, Error, TEXT("CreateSlotsForPocket early out: Canvas=%d Class=%d"),
-			CanvasRoot ? 1 : 0, SlotWidgetClass ? 1 : 0);
+		return;
+	}
+
+	UPanelWidget* SideBox = GetBoxForSide(PocketDef.SlotSide);
+	if (!SideBox)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CreateSlotsForPocket: Side box null. Check Box_Top/Bottom/Left/Right names."));
 		return;
 	}
 
 	const int32 Num = PocketRuntime.Slots.Num();
 	if (Num <= 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Pocket %s has 0 slots"), *PocketRuntime.PocketId.ToString());
 		return;
 	}
 
-	const FVector2D Anchor = PocketAnchorToCanvas(PocketDef.AnchorUV);
-	const FVector2D Origin = ComputePocketSlotsOrigin(Anchor, PocketDef.SlotSide, Num);
+	// 每个口袋一个组，避免不同组混排
+	UUniformGridPanel* Grid = WidgetTree->ConstructWidget<UUniformGridPanel>(UUniformGridPanel::StaticClass());
+	if (!Grid)
+	{
+		return;
+	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Pocket %s Num=%d Anchor=(%.0f,%.0f) Origin=(%.0f,%.0f)"),
-		*PocketRuntime.PocketId.ToString(), Num, Anchor.X, Anchor.Y, Origin.X, Origin.Y);
+	SideBox->AddChild(Grid);
 
-	FVector2D PocketCenterSum = FVector2D::ZeroVector;
-	int32 Placed = 0;
+	// 居中
+	if (UHorizontalBoxSlot* HS = Cast<UHorizontalBoxSlot>(Grid->Slot))
+	{
+		// Top / Bottom
+		HS->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+		HS->SetHorizontalAlignment(HAlign_Center);
+		HS->SetVerticalAlignment(VAlign_Center);
+		HS->SetPadding(FMargin(4.f));
+	}
+	else if (UVerticalBoxSlot* VS = Cast<UVerticalBoxSlot>(Grid->Slot))
+	{
+		// Left / Right
+		VS->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+		VS->SetHorizontalAlignment(HAlign_Center);
+		VS->SetVerticalAlignment(VAlign_Center);
+		VS->SetPadding(FMargin(4.f));
+	}
+
+	GeneratedGroups.Add(Grid);
+
+	const bool bTwoColumns = (PocketDef.SlotSide == ETAPocketSlotSide::Left
+		|| PocketDef.SlotSide == ETAPocketSlotSide::Right);
+	// Left/Right：两列（行优先，最后一行可 1 格）
+	// Top/Bottom：两行（列优先，最后一列可 1 格）
 
 	for (int32 i = 0; i < Num; ++i)
 	{
+		int32 Row = 0;
+		int32 Col = 0;
+		if (bTwoColumns)
+		{
+			Row = i / 2;
+			Col = i % 2;
+		}
+		else
+		{
+			Col = i / 2;
+			Row = i % 2;
+		}
+
+		USizeBox* Cell = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass());
+		Cell->SetWidthOverride(SlotSize);
+		Cell->SetHeightOverride(SlotSize);
+
 		UUserWidget* SlotWidget = CreateWidget<UUserWidget>(this, SlotWidgetClass);
-		if (!SlotWidget)
+		if (SlotWidget)
 		{
-			++InOutFlatIndex;
-			continue;
+			Cell->AddChild(SlotWidget);
+			if (UTAInventorySlotWidget* InvSlot = Cast<UTAInventorySlotWidget>(SlotWidget))
+			{
+				InvSlot->SetSlotData(PocketRuntime.Slots[i], InOutFlatIndex);
+			}
+			GeneratedSlots.Add(SlotWidget);
 		}
 
-		const int32 Row = i / SlotsPerRow;
-		const int32 Col = i % SlotsPerRow;
-		const FVector2D Pos(
-			Origin.X + Col * (SlotSize + SlotPadding),
-			Origin.Y + Row * (SlotSize + SlotPadding));
-
-		CanvasRoot->AddChild(SlotWidget);
-		if (UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(SlotWidget->Slot))
+		Grid->AddChildToUniformGrid(Cell, Row, Col);
+		if (UUniformGridSlot* GS = Cast<UUniformGridSlot>(Cell->Slot))
 		{
-			CanvasSlot->SetAnchors(FAnchors(0.f, 0.f));
-			CanvasSlot->SetAlignment(FVector2D(0.f, 0.f));
-			CanvasSlot->SetPosition(Pos);
-			CanvasSlot->SetSize(FVector2D(SlotSize, SlotSize));
-			CanvasSlot->SetZOrder(10);
-			CanvasSlot->SetAutoSize(false);
+			GS->SetHorizontalAlignment(HAlign_Center);
+			GS->SetVerticalAlignment(VAlign_Center);
 		}
 
-		SlotWidget->SetVisibility(ESlateVisibility::Visible);
-
-		if (UTAInventorySlotWidget* InvSlot = Cast<UTAInventorySlotWidget>(SlotWidget))
-		{
-			InvSlot->SetSlotData(PocketRuntime.Slots[i], InOutFlatIndex);
-		}
-
-		GeneratedSlots.Add(SlotWidget);
-		PocketCenterSum += Pos + FVector2D(SlotSize, SlotSize) * 0.5f;
-		++Placed;
 		++InOutFlatIndex;
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Placed=%d GeneratedSlots=%d"), Placed, GeneratedSlots.Num());
-
-	if (Placed > 0)
-	{
-		CreateLine(Anchor, PocketCenterSum / static_cast<float>(Placed));
 	}
 }
 
 void UTAClothingPanelWidget::BuildFromClothing(const FTAClothingInstance& Instance, int32 FlatIndexStart)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Clothing Build: Def=%s Pockets=%d SlotClass=%s"),
-		Instance.Definition ? *Instance.Definition->GetName() : TEXT("None"),
-		Instance.Pockets.Num(),
-		SlotWidgetClass ? *SlotWidgetClass->GetName() : TEXT("None"));
-	EnsureCanvas();
-	ClearPanel();
+	EnsureBindings();
 
 	if (!Instance.Definition)
 	{
+		ClearPanel();
 		SetVisibility(ESlateVisibility::Collapsed);
 		return;
 	}
 
 	SetVisibility(ESlateVisibility::Visible);
+
+	int32 TotalRuntimeSlots = 0;
+	for (const FTAPocketRuntime& P : Instance.Pockets)
+	{
+		TotalRuntimeSlots += P.Slots.Num();
+	}
+
+	const bool bSameLayout =
+		BuiltDef == Instance.Definition &&
+		BuiltFlatStart == FlatIndexStart &&
+		GeneratedSlots.Num() > 0 &&
+		GeneratedSlots.Num() == TotalRuntimeSlots;
+
+	if (bSameLayout)
+	{
+		int32 Idx = 0;
+		int32 Flat = FlatIndexStart;
+		for (const FTAPocketRuntime& Pocket : Instance.Pockets)
+		{
+			for (const FTAInventorySlot& SlotData : Pocket.Slots)
+			{
+				if (GeneratedSlots.IsValidIndex(Idx))
+				{
+					if (UTAInventorySlotWidget* InvSlot = Cast<UTAInventorySlotWidget>(GeneratedSlots[Idx]))
+					{
+						InvSlot->SetSlotData(SlotData, Flat);
+					}
+				}
+				++Idx;
+				++Flat;
+			}
+		}
+		CurrentDef = Instance.Definition;
+		return;
+	}
+
+	ClearPanel();
+	BuiltDef = Instance.Definition;
+	BuiltFlatStart = FlatIndexStart;
 	CurrentDef = Instance.Definition;
 	SetClothingIcon(CurrentDef);
 
-	const TArray<FTAPocketDef>& PocketDefs = CurrentDef->Pockets;
 	int32 FlatIndex = FlatIndexStart;
+	const TArray<FTAPocketDef>& PocketDefs = CurrentDef->Pockets;
 
 	for (int32 p = 0; p < Instance.Pockets.Num(); ++p)
 	{
@@ -327,7 +280,6 @@ void UTAClothingPanelWidget::BuildFromClothing(const FTAClothingInstance& Instan
 			PocketDef.AnchorUV = FVector2D(0.5f, 0.5f);
 			PocketDef.SlotSide = ETAPocketSlotSide::Right;
 		}
-
 		CreateSlotsForPocket(Instance.Pockets[p], PocketDef, FlatIndex);
 	}
 }

@@ -4,179 +4,140 @@
 #include "Inventory/TAInventoryComponent.h"
 #include "Inventory/TAClothingDefinition.h"
 #include "Core/TAPlayerState.h"
-#include "Blueprint/WidgetTree.h"
-#include "Components/Overlay.h"
-#include "Components/OverlaySlot.h"
 #include "Components/Border.h"
-#include "Components/VerticalBox.h"
-#include "Components/VerticalBoxSlot.h"
-#include "Components/HorizontalBox.h"
-#include "Components/HorizontalBoxSlot.h"
-#include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
+#include "Components/WidgetSwitcher.h"
+#include "Components/Button.h"
+#include "Components/NamedSlot.h"
 #include "GameFramework/PlayerController.h"
-#include "GameFramework/Pawn.h"
+#include "Core/TALocalizeSubsystem.h"
 
 void UTAInventoryPanelWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	EnsureLayout();
+
+	if (!SlotWidgetClass)
+	{
+		SlotWidgetClass = UTAInventorySlotWidget::StaticClass();
+	}
+	if (!ClothingPanelClass)
+	{
+		ClothingPanelClass = UTAClothingPanelWidget::StaticClass();
+	}
+
+	EnsureDynamicChildren();
+
+	if (Button_Inventory)
+	{
+		Button_Inventory->OnClicked.AddDynamic(this, &UTAInventoryPanelWidget::OnClickInventoryTab);
+	}
+	if (Button_Skills)
+	{
+		Button_Skills->OnClicked.AddDynamic(this, &UTAInventoryPanelWidget::OnClickSkillsTab);
+	}
+
+	if (WidgetSwitcher)
+	{
+		WidgetSwitcher->SetActiveWidgetIndex(0);
+	}
+
+	RefreshLocalizedChrome();
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UTALocalizeSubsystem* Loc = GI->GetSubsystem<UTALocalizeSubsystem>())
+		{
+			Loc->OnLanguageChanged.AddDynamic(this, &UTAInventoryPanelWidget::HandleLanguageChanged);
+		}
+	}
+
 }
 
 void UTAInventoryPanelWidget::NativeDestruct()
 {
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UTALocalizeSubsystem* Loc = GI->GetSubsystem<UTALocalizeSubsystem>())
+		{
+			Loc->OnLanguageChanged.RemoveDynamic(this, &UTAInventoryPanelWidget::HandleLanguageChanged);
+		}
+	}
+
 	if (Inventory)
 	{
 		Inventory->OnInventoryUpdated.RemoveDynamic(this, &UTAInventoryPanelWidget::HandleInventoryUpdated);
 	}
+
 	Super::NativeDestruct();
 }
 
-void UTAInventoryPanelWidget::EnsureLayout()
+void UTAInventoryPanelWidget::EnsureDynamicChildren()
 {
-	if (RootOverlay)
+	if (!SlotWidgetClass)
 	{
-		return;
+		SlotWidgetClass = UTAInventorySlotWidget::StaticClass();
 	}
-	BuildLayout();
-}
-
-void UTAInventoryPanelWidget::BuildLayout()
-{
-	if (!WidgetTree)
+	if (!ClothingPanelClass)
 	{
-		return;
+		ClothingPanelClass = UTAClothingPanelWidget::StaticClass();
 	}
-
-	RootOverlay = WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(), TEXT("RootOverlay"));
-	WidgetTree->RootWidget = RootOverlay;
-
-	// 全屏遮罩
-	DimBorder = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("DimBorder"));
-	if (UOverlaySlot* DimSlot = RootOverlay->AddChildToOverlay(DimBorder))
-	{
-		DimSlot->SetHorizontalAlignment(HAlign_Fill);
-		DimSlot->SetVerticalAlignment(VAlign_Fill);
-	}
-	DimBorder->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, 0.55f));
-
-	// 中央面板
-	PanelBorder = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("PanelBorder"));
-	if (UOverlaySlot* PanelSlot = RootOverlay->AddChildToOverlay(PanelBorder))
-	{
-		PanelSlot->SetHorizontalAlignment(HAlign_Center);
-		PanelSlot->SetVerticalAlignment(VAlign_Center);
-	}
-	PanelBorder->SetBrushColor(FLinearColor(0.05f, 0.05f, 0.07f, 0.95f));
-	PanelBorder->SetPadding(FMargin(16.f));
-
-	USizeBox* PanelSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("PanelSize"));
-	PanelSize->SetWidthOverride(PanelWidth);
-	PanelSize->SetHeightOverride(PanelHeight);
-	PanelBorder->SetContent(PanelSize);
-
-	UVerticalBox* RootVBox = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("RootVBox"));
-	PanelSize->AddChild(RootVBox);
-
-	// 金钱
-	MoneyText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("MoneyText"));
-	MoneyText->SetText(FText::FromString(TEXT("细胞: 0")));
-	if (UVerticalBoxSlot* MoneySlot = RootVBox->AddChildToVerticalBox(MoneyText))
-	{
-		MoneySlot->SetPadding(FMargin(0.f, 0.f, 0.f, 12.f));
-		MoneySlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
-	}
-
-	// 主区：左栏 + 右衣服
-	UHorizontalBox* MainHBox = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("MainHBox"));
-	if (UVerticalBoxSlot* MainSlot = RootVBox->AddChildToVerticalBox(MainHBox))
-	{
-		MainSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-	}
-
-	// 左栏
-	USizeBox* LeftSize = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("LeftSize"));
-	LeftSize->SetWidthOverride(LeftColumnWidth);
-	if (UHorizontalBoxSlot* LeftOuterSlot = MainHBox->AddChildToHorizontalBox(LeftSize))
-	{
-		LeftOuterSlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
-		LeftOuterSlot->SetPadding(FMargin(0.f, 0.f, 12.f, 0.f));
-		LeftOuterSlot->SetVerticalAlignment(VAlign_Fill);
-	}
-
-	LeftColumn = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("LeftColumn"));
-	LeftSize->AddChild(LeftColumn);
-
-	auto AddLeftSlot = [&](TObjectPtr<UTAInventorySlotWidget>& OutSlot, const FName& Name)
+	auto SpawnSlotInto = [&](UNamedSlot* Named, TObjectPtr<UTAInventorySlotWidget>& OutSlot)
 		{
-			OutSlot = CreateWidget<UTAInventorySlotWidget>(this, UTAInventorySlotWidget::StaticClass());
-			if (!OutSlot)
+			if (!Named || OutSlot)
 			{
 				return;
 			}
-			if (UVerticalBoxSlot* VSlot = LeftColumn->AddChildToVerticalBox(OutSlot))
+			OutSlot = CreateWidget<UTAInventorySlotWidget>(this, SlotWidgetClass);
+			if (OutSlot)
 			{
-				VSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-				VSlot->SetHorizontalAlignment(HAlign_Center);
-				VSlot->SetVerticalAlignment(VAlign_Center);
-				VSlot->SetPadding(FMargin(0.f, 4.f));
+				Named->ClearChildren();
+				Named->AddChild(OutSlot);
+				OutSlot->SetEmpty();
 			}
 		};
 
-	AddLeftSlot(OuterEquipSlot, TEXT("OuterEquip"));
+	SpawnSlotInto(NamedSlot_OuterEquip, OuterEquipSlot);
+
 	StorySlots.SetNum(4);
-	for (int32 i = 0; i < 4; ++i)
+	SpawnSlotInto(NamedSlot_Story0, StorySlots[0]);
+	SpawnSlotInto(NamedSlot_Story1, StorySlots[1]);
+	SpawnSlotInto(NamedSlot_Story2, StorySlots[2]);
+	SpawnSlotInto(NamedSlot_Story3, StorySlots[3]);
+
+	if (NamedSlot_InnerClothing && !InnerClothingPanel)
 	{
-		AddLeftSlot(StorySlots[i], *FString::Printf(TEXT("Story_%d"), i));
-		if (StorySlots[i])
+		InnerClothingPanel = CreateWidget<UTAClothingPanelWidget>(this, ClothingPanelClass);
+		if (InnerClothingPanel)
 		{
-			StorySlots[i]->SetEmpty();
+			InnerClothingPanel->SlotWidgetClass = SlotWidgetClass;
+			NamedSlot_InnerClothing->ClearChildren();
+			NamedSlot_InnerClothing->AddChild(InnerClothingPanel);
 		}
 	}
-	if (OuterEquipSlot)
-	{
-		OuterEquipSlot->SetEmpty();
-	}
 
-	// 右栏：外套 | 内衬
-	UHorizontalBox* ClothingHBox = WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(), TEXT("ClothingHBox"));
-	if (UHorizontalBoxSlot* ClothSlot = MainHBox->AddChildToHorizontalBox(ClothingHBox))
+	if (NamedSlot_OuterClothing && !OuterClothingPanel)
 	{
-		ClothSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-	}
-
-	OuterClothingPanel = CreateWidget<UTAClothingPanelWidget>(this, UTAClothingPanelWidget::StaticClass());
-	InnerClothingPanel = CreateWidget<UTAClothingPanelWidget>(this, UTAClothingPanelWidget::StaticClass());
-
-	if (OuterClothingPanel)
-	{
-		OuterClothingPanel->SlotWidgetClass = UTAInventorySlotWidget::StaticClass();
-		if (UHorizontalBoxSlot* S = ClothingHBox->AddChildToHorizontalBox(OuterClothingPanel))
+		OuterClothingPanel = CreateWidget<UTAClothingPanelWidget>(this, ClothingPanelClass);
+		if (OuterClothingPanel)
 		{
-			S->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-		}
-		OuterClothingPanel->SetVisibility(ESlateVisibility::Collapsed);
-	}
-	if (InnerClothingPanel)
-	{
-		InnerClothingPanel->SlotWidgetClass = UTAInventorySlotWidget::StaticClass();
-		if (UHorizontalBoxSlot* S = ClothingHBox->AddChildToHorizontalBox(InnerClothingPanel))
-		{
-			S->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+			OuterClothingPanel->SlotWidgetClass = SlotWidgetClass;
+			NamedSlot_OuterClothing->ClearChildren();
+			NamedSlot_OuterClothing->AddChild(OuterClothingPanel);
+			OuterClothingPanel->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 }
 
 void UTAInventoryPanelWidget::Init(UTAInventoryComponent* InInventory)
 {
-	EnsureLayout();
-
 	if (Inventory)
 	{
 		Inventory->OnInventoryUpdated.RemoveDynamic(this, &UTAInventoryPanelWidget::HandleInventoryUpdated);
 	}
 
 	Inventory = InInventory;
+	EnsureDynamicChildren();
+
 	if (Inventory)
 	{
 		Inventory->OnInventoryUpdated.AddDynamic(this, &UTAInventoryPanelWidget::HandleInventoryUpdated);
@@ -190,16 +151,31 @@ void UTAInventoryPanelWidget::HandleInventoryUpdated()
 	RefreshAll();
 }
 
+void UTAInventoryPanelWidget::OnClickInventoryTab()
+{
+	if (WidgetSwitcher)
+	{
+		WidgetSwitcher->SetActiveWidgetIndex(0);
+	}
+}
+
+void UTAInventoryPanelWidget::OnClickSkillsTab()
+{
+	if (WidgetSwitcher)
+	{
+		WidgetSwitcher->SetActiveWidgetIndex(1);
+	}
+}
+
 void UTAInventoryPanelWidget::RefreshAll()
 {
-	EnsureLayout();
+	EnsureDynamicChildren();
 	if (!Inventory)
 	{
 		return;
 	}
 
-	// 金钱
-	if (MoneyText)
+	if (Text_Money)
 	{
 		int32 Money = 0;
 		if (APlayerController* PC = GetOwningPlayer())
@@ -209,10 +185,19 @@ void UTAInventoryPanelWidget::RefreshAll()
 				Money = PS->GetMoney();
 			}
 		}
-		MoneyText->SetText(FText::FromString(FString::Printf(TEXT("细胞: %d"), Money)));
+
+		FString Line = FString::Printf(TEXT("细胞: %d"), Money);
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (const UTALocalizeSubsystem* Loc = GI->GetSubsystem<UTALocalizeSubsystem>())
+			{
+				const FString Fmt = Loc->GetText(TEXT("UI_Cells")).ToString();
+				Line = Fmt.Replace(TEXT("{0}"), *FString::FromInt(Money));
+			}
+		}
+		Text_Money->SetText(FText::FromString(Line));
 	}
 
-	// 剧情格
 	const TArray<FTAInventorySlot>& Stories = Inventory->GetStorySlots();
 	for (int32 i = 0; i < StorySlots.Num(); ++i)
 	{
@@ -222,7 +207,7 @@ void UTAInventoryPanelWidget::RefreshAll()
 		}
 		if (Stories.IsValidIndex(i) && !Stories[i].IsEmpty())
 		{
-			StorySlots[i]->SetSlotData(Stories[i], -100 - i); // 负号标记非扁平格
+			StorySlots[i]->SetSlotData(Stories[i], -100 - i);
 		}
 		else
 		{
@@ -230,21 +215,11 @@ void UTAInventoryPanelWidget::RefreshAll()
 		}
 	}
 
-	// 外套装备格：只显示衣服图标占位（用空 Slot + 以后可扩展）
 	if (OuterEquipSlot)
 	{
-		if (Inventory->HasOuterClothing() && Inventory->GetOuterClothing().Definition)
-		{
-			// 暂无空数据占位；可后续 SetClothingIcon 接口
-			OuterEquipSlot->SetEmpty();
-		}
-		else
-		{
-			OuterEquipSlot->SetEmpty();
-		}
+		OuterEquipSlot->SetEmpty(); // 后续可显示外套图标
 	}
 
-	// 衣服面板
 	if (InnerClothingPanel)
 	{
 		InnerClothingPanel->BuildFromClothing(Inventory->GetInnerClothing(), 0);
@@ -255,10 +230,11 @@ void UTAInventoryPanelWidget::RefreshAll()
 		if (Inventory->HasOuterClothing())
 		{
 			OuterClothingPanel->SetVisibility(ESlateVisibility::Visible);
-			const int32 InnerTotal = Inventory->GetInnerClothing().Definition
-				? Inventory->GetInnerClothing().Definition->GetTotalSlotCount()
-				: 0;
-			// 更准确：用运行时口袋格数
+			if (NamedSlot_OuterClothing)
+			{
+				NamedSlot_OuterClothing->SetVisibility(ESlateVisibility::Visible);
+			}
+
 			int32 InnerSlots = 0;
 			for (const FTAPocketRuntime& P : Inventory->GetInnerClothing().Pockets)
 			{
@@ -272,4 +248,39 @@ void UTAInventoryPanelWidget::RefreshAll()
 			OuterClothingPanel->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
+}
+
+void UTAInventoryPanelWidget::RefreshLocalizedChrome()
+{
+	const UTALocalizeSubsystem* Loc = nullptr;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		Loc = GI->GetSubsystem<UTALocalizeSubsystem>();
+	}
+
+	auto Apply = [Loc](UTextBlock* Block, const TCHAR* TextId, const TCHAR* Fallback)
+		{
+			if (!Block)
+			{
+				return;
+			}
+			if (Loc)
+			{
+				Block->SetText(Loc->GetText(TextId));
+			}
+			else
+			{
+				Block->SetText(FText::FromString(Fallback));
+			}
+		};
+
+	Apply(Text_Inventory, TEXT("UI_Inventory"), TEXT("背包"));
+	Apply(Text_Skills, TEXT("UI_Skill"), TEXT("技能"));
+	Apply(Text_SkillsPlaceholder, TEXT("Common_UnavailableInThisVersion"), TEXT("当前版本中不可用"));
+}
+
+void UTAInventoryPanelWidget::HandleLanguageChanged()
+{
+	RefreshLocalizedChrome();
+	RefreshAll();
 }

@@ -1,67 +1,20 @@
 #include "UI/Inventory/TAInventorySlotWidget.h"
 #include "Inventory/TAItemDefinition.h"
-#include "Blueprint/WidgetTree.h"
-#include "Components/SizeBox.h"
-#include "Components/Border.h"
-#include "Components/Overlay.h"
-#include "Components/OverlaySlot.h"
+#include "Core/TALocalizeSubsystem.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/Border.h"
+#include "Components/SizeBox.h"
 #include "Engine/Texture2D.h"
 
 void UTAInventorySlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	EnsureWidgets();
 	RefreshVisuals();
-}
-
-void UTAInventorySlotWidget::EnsureWidgets()
-{
-	if (RootSizeBox)
-	{
-		return;
-	}
-
-	if (!WidgetTree)
-	{
-		return;
-	}
-
-	RootSizeBox = WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(), TEXT("RootSizeBox"));
-	WidgetTree->RootWidget = RootSizeBox;
-	RootSizeBox->SetWidthOverride(SlotSize);
-	RootSizeBox->SetHeightOverride(SlotSize);
-
-	BackgroundBorder = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("BackgroundBorder"));
-	RootSizeBox->AddChild(BackgroundBorder);
-	BackgroundBorder->SetBrushColor(FLinearColor(0.08f, 0.08f, 0.1f, 0.9f));
-	BackgroundBorder->SetPadding(FMargin(4.f));
-
-	ContentOverlay = WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(), TEXT("ContentOverlay"));
-	BackgroundBorder->SetContent(ContentOverlay);
-
-	IconImage = WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(), TEXT("IconImage"));
-	if (UOverlaySlot* IconSlot = ContentOverlay->AddChildToOverlay(IconImage))
-	{
-		IconSlot->SetHorizontalAlignment(HAlign_Fill);
-		IconSlot->SetVerticalAlignment(VAlign_Fill);
-	}
-	IconImage->SetVisibility(ESlateVisibility::Hidden);
-
-	CountText = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("CountText"));
-	if (UOverlaySlot* TextSlot = ContentOverlay->AddChildToOverlay(CountText))
-	{
-		TextSlot->SetHorizontalAlignment(HAlign_Right);
-		TextSlot->SetVerticalAlignment(VAlign_Bottom);
-		TextSlot->SetPadding(FMargin(0.f, 0.f, 2.f, 0.f));
-	}
-	CountText->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UTAInventorySlotWidget::SetSlotData(const FTAInventorySlot& SlotData, int32 InFlatIndex)
 {
-	EnsureWidgets();
 	CachedSlot = SlotData;
 	FlatIndex = InFlatIndex;
 	RefreshVisuals();
@@ -69,7 +22,6 @@ void UTAInventorySlotWidget::SetSlotData(const FTAInventorySlot& SlotData, int32
 
 void UTAInventorySlotWidget::SetEmpty()
 {
-	EnsureWidgets();
 	CachedSlot = FTAInventorySlot();
 	FlatIndex = INDEX_NONE;
 	RefreshVisuals();
@@ -87,38 +39,68 @@ UTAItemDefinition* UTAInventorySlotWidget::GetItemDef() const
 
 void UTAInventorySlotWidget::RefreshVisuals()
 {
-	EnsureWidgets();
-	if (!IconImage || !CountText)
+	const bool bHasItem = !CachedSlot.IsEmpty() && CachedSlot.ItemDef;
+
+	if (Image_item)
 	{
-		return;
+		if (bHasItem)
+		{
+			UTexture2D* Icon = CachedSlot.ItemDef->Icon.Get(); // 若是 Soft 则 LoadSynchronous
+			if (Icon)
+			{
+				Image_item->SetBrushFromTexture(Icon);
+				Image_item->SetVisibility(ESlateVisibility::HitTestInvisible);
+			}
+			else
+			{
+				Image_item->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+		else
+		{
+			Image_item->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 
-	if (CachedSlot.IsEmpty() || !CachedSlot.ItemDef)
+	if (Text_Count)
 	{
-		IconImage->SetVisibility(ESlateVisibility::Hidden);
-		CountText->SetVisibility(ESlateVisibility::Hidden);
-		return;
+		if (bHasItem && CachedSlot.Count > 1)
+		{
+			Text_Count->SetText(FText::AsNumber(CachedSlot.Count));
+			Text_Count->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+		else
+		{
+			Text_Count->SetText(FText::GetEmpty());
+			Text_Count->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 
-	UTexture2D* Icon = CachedSlot.ItemDef->Icon;
+	if (Text_Name)
+	{
+		if (bHasItem && CachedSlot.ItemDef)
+		{
+			const FString Id = CachedSlot.ItemDef->DisplayName.ToString();
+			FText NameText = FText::FromString(Id);
 
-	if (Icon)
-	{
-		IconImage->SetBrushFromTexture(Icon);
-		IconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
-	}
-	else
-	{
-		IconImage->SetVisibility(ESlateVisibility::Hidden);
-	}
+			if (UWorld* World = GetWorld())
+			{
+				if (UGameInstance* GI = World->GetGameInstance())
+				{
+					if (const UTALocalizeSubsystem* Loc = GI->GetSubsystem<UTALocalizeSubsystem>())
+					{
+						NameText = Loc->GetText(Id);
+					}
+				}
+			}
 
-	if (CachedSlot.Count > 1)
-	{
-		CountText->SetText(FText::AsNumber(CachedSlot.Count));
-		CountText->SetVisibility(ESlateVisibility::HitTestInvisible);
-	}
-	else
-	{
-		CountText->SetVisibility(ESlateVisibility::Hidden);
+			Text_Name->SetText(NameText);
+			Text_Name->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+		else
+		{
+			Text_Name->SetText(FText::GetEmpty());
+			Text_Name->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }

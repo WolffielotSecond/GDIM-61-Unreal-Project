@@ -7,6 +7,7 @@
   "UI_Settings": "Settings",
   "UI_Inventory": "Inventory",
   "UI_Skill": "Skills",
+  "UI_Cells": "Cells: {0}",
   "Item_Herb_Name": "Herb",
   "Item_Herb_Desc": "A common medicinal herb. Use it to restore a small amount of health.",
   "Item_Keycard_Name": "Keycard",

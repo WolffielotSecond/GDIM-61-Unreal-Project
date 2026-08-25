@@ -9,7 +9,6 @@ class UImage;
 class UTextBlock;
 class UBorder;
 class USizeBox;
-class UOverlay;
 class UTAItemDefinition;
 
 UCLASS()
@@ -20,7 +19,6 @@ class THE_AWAKENING_API UTAInventorySlotWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	/** 格子数据 */
 	UFUNCTION(BlueprintCallable, Category = "InventorySlot")
 	void SetSlotData(const FTAInventorySlot& SlotData, int32 FlatIndex);
 
@@ -37,27 +35,23 @@ public:
 	UTAItemDefinition* GetItemDef() const;
 
 protected:
-	void EnsureWidgets();
 	void RefreshVisuals();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InventorySlot")
-	float SlotSize = 64.f;
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<USizeBox> SizeBox_Root; // 若根 Size Box 没改名，可删掉此绑定
 
-	UPROPERTY()
-	TObjectPtr<USizeBox> RootSizeBox;
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UBorder> Border;
 
-	UPROPERTY()
-	TObjectPtr<UBorder> BackgroundBorder;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_item;
 
-	UPROPERTY()
-	TObjectPtr<UOverlay> ContentOverlay;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Text_Count;
 
-	UPROPERTY()
-	TObjectPtr<UImage> IconImage;
-
-	UPROPERTY()
-	TObjectPtr<UTextBlock> CountText;
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Text_Name;
 
 	UPROPERTY()
 	FTAInventorySlot CachedSlot;
