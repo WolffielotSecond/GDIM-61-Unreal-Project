@@ -41,6 +41,12 @@ ATAWorldItem::ATAWorldItem()
 void ATAWorldItem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (MeshComponent)
+	{
+		MeshComponent->SetRenderCustomDepth(true);
+		MeshComponent->SetCustomDepthStencilValue(2);
+	}
 }
 
 void ATAWorldItem::SetupItem(UTAItemDefinition* InDef, int32 InCount)

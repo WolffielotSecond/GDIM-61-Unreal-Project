@@ -4,6 +4,7 @@
 
 #include "Materials/MaterialParameterCollection.h"
 #include "CoreMinimal.h"
+#include "TimerManager.h"
 #include "Components/ActorComponent.h"
 #include "TAScanningComponent.generated.h"
 
