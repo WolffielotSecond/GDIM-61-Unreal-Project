@@ -8,6 +8,7 @@
 #include "TAScanningComponent.generated.h"
 
 class ATAScanningActor;
+class ATA_HighlightPPActor;
 
 UENUM(BlueprintType)
 enum class ETAScanState : uint8
@@ -56,6 +57,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scan|Settings|Material")
 	float GridCellSize = 500.0f;
 
+	// Settings | Highlight
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scan|Settings|Highlight")
+	float ShowDelay = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scan|Settings|Highlight")
+	float HideDelay = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scan|Settings|Highlight")
+	float HighlightFadeTime = 0.3f;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -86,4 +97,33 @@ private:
 	TObjectPtr<APlayerController> PlayerController;
 
 	float ScanNormalizedTime = 0.0f;
+
+	//Highlight
+
+	void UpdateHighlight(float DeltaTime);
+
+	ATA_HighlightPPActor* GetHighlightPPActor();
+
+	void DestroyHighlightPPActor();
+
+	void StartHighlightHideTimer();
+
+	void CancelHighlightHideTimer();
+
+	UPROPERTY()
+	TObjectPtr<ATA_HighlightPPActor> HighlightPPActor;
+
+	float HighlightShowProgress = 0.0f;
+
+	FTimerHandle HighlightHideTimerHandle;
+
+	float HighlightValue = 0.0f;
+
+	bool bHighlightFadingIn = false;
+
+	bool bHighlightFadingOut = false;
+
+	void BeginHighlightFadeIn();
+
+	void BeginHighlightFadeOut();
 };

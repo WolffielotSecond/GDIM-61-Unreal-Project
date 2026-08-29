@@ -4,6 +4,7 @@
 #include "Scan/TAScanningComponent.h"
 
 #include "Scan/TAScanningActor.h"
+#include "Scan/TA_HighlightPPActor.h"
 #include "Components/PostProcessComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
@@ -78,6 +79,13 @@ void UTAScanningComponent::BeginPlay()
 			FName("Range"),
 			Range
 		);
+
+		UKismetMaterialLibrary::SetScalarParameterValue(
+			GetWorld(),
+			ScanParameterCollection,
+			FName("Highlight"),
+			0.0f
+		);
 	}
 	else
 	{
@@ -92,6 +100,7 @@ void UTAScanningComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	UpdateHighlight(DeltaTime);
 	UpdateScanTime(DeltaTime);
 	/*
 	//debug print time
@@ -257,8 +266,12 @@ bool UTAScanningComponent::UpdateScanState(ETAScanState NewState, bool bForce)
 				}
 			}
 
-			SetComponentTickEnabled(false);
 			DestroyScanPPActor();
+
+			if (HighlightShowProgress <= 0.0f)
+			{
+				SetComponentTickEnabled(false);
+			}
 			break;
 		/*
 		case ETAScanState::Invalid:
@@ -428,13 +441,301 @@ void UTAScanningComponent::UpdateScanPPBlendWeight()
 	PostProcessComponent->BlendWeight = BlendWeight;
 }
 
+
+void UTAScanningComponent::UpdateHighlight(float DeltaTime)
+{
+	// --------------------------------------------------
+	// Highlight Actor 已经存在：
+	// 处理 FadeIn / FadeOut
+	// --------------------------------------------------
+	if (IsValid(HighlightPPActor))
+	{
+		if (HighlightFadeTime <= 0.0f)
+		{
+			if (bHighlightFadingIn)
+			{
+				HighlightValue = 1.0f;
+				bHighlightFadingIn = false;
+			}
+			else if (bHighlightFadingOut)
+			{
+				HighlightValue = 0.0f;
+				bHighlightFadingOut = false;
+
+				UKismetMaterialLibrary::SetScalarParameterValue(
+					GetWorld(),
+					ScanParameterCollection,
+					FName("Highlight"),
+					HighlightValue
+				);
+
+				DestroyHighlightPPActor();
+				return;
+			}
+		}
+		else
+		{
+			const float FadeSpeed = 1.0f / HighlightFadeTime;
+
+			if (bHighlightFadingIn)
+			{
+				HighlightValue += DeltaTime * FadeSpeed;
+
+				if (HighlightValue >= 1.0f)
+				{
+					HighlightValue = 1.0f;
+					bHighlightFadingIn = false;
+				}
+			}
+			else if (bHighlightFadingOut)
+			{
+				HighlightValue -= DeltaTime * FadeSpeed;
+
+				if (HighlightValue <= 0.0f)
+				{
+					HighlightValue = 0.0f;
+					bHighlightFadingOut = false;
+
+					UKismetMaterialLibrary::SetScalarParameterValue(
+						GetWorld(),
+						ScanParameterCollection,
+						FName("Highlight"),
+						HighlightValue
+					);
+
+					DestroyHighlightPPActor();
+					return;
+				}
+			}
+		}
+
+		UKismetMaterialLibrary::SetScalarParameterValue(
+			GetWorld(),
+			ScanParameterCollection,
+			FName("Highlight"),
+			HighlightValue
+		);
+
+		return;
+	}
+
+	// --------------------------------------------------
+	// Highlight Actor 不存在：
+	// 处理 ShowDelay
+	// --------------------------------------------------
+
+	const bool bScanning =
+		ScanState == ETAScanState::FadeIn ||
+		ScanState == ETAScanState::FadedIn;
+
+	if (bScanning)
+	{
+		HighlightShowProgress += DeltaTime;
+
+		if (HighlightShowProgress >= ShowDelay)
+		{
+			HighlightShowProgress = ShowDelay;
+			GetHighlightPPActor();
+		}
+	}
+	else
+	{
+		HighlightShowProgress -= DeltaTime;
+
+		HighlightShowProgress = FMath::Max(
+			HighlightShowProgress,
+			0.0f
+		);
+
+		if (HighlightShowProgress <= 0.0f &&
+			ScanState == ETAScanState::FadedOut)
+		{
+			SetComponentTickEnabled(false);
+		}
+	}
+}
+
+ATA_HighlightPPActor* UTAScanningComponent::GetHighlightPPActor()
+{
+	if (IsValid(HighlightPPActor))
+	{
+		return HighlightPPActor;
+	}
+
+	if (!GetWorld())
+	{
+		return nullptr;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = GetOwner();
+
+	HighlightPPActor = GetWorld()->SpawnActor<ATA_HighlightPPActor>(
+		ATA_HighlightPPActor::StaticClass(),
+		FTransform::Identity,
+		SpawnParams
+	);
+
+	if (IsValid(HighlightPPActor))
+	{
+		HighlightValue = 0.0f;
+
+		UKismetMaterialLibrary::SetScalarParameterValue(
+			GetWorld(),
+			ScanParameterCollection,
+			FName("Highlight"),
+			HighlightValue
+		);
+
+		BeginHighlightFadeIn();
+	}
+
+	return HighlightPPActor;
+}
+
+void UTAScanningComponent::BeginHighlightFadeIn()
+{
+	if (!IsValid(HighlightPPActor))
+	{
+		return;
+	}
+
+	bHighlightFadingOut = false;
+
+	if (HighlightValue >= 1.0f)
+	{
+		HighlightValue = 1.0f;
+		bHighlightFadingIn = false;
+		return;
+	}
+
+	bHighlightFadingIn = true;
+	SetComponentTickEnabled(true);
+}
+
+void UTAScanningComponent::BeginHighlightFadeOut()
+{
+	if (!IsValid(HighlightPPActor))
+	{
+		return;
+	}
+
+	bHighlightFadingIn = false;
+
+	if (HighlightValue <= 0.0f)
+	{
+		HighlightValue = 0.0f;
+		bHighlightFadingOut = false;
+		DestroyHighlightPPActor();
+		return;
+	}
+
+	bHighlightFadingOut = true;
+	SetComponentTickEnabled(true);
+}
+
+void UTAScanningComponent::DestroyHighlightPPActor()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(
+			HighlightHideTimerHandle
+		);
+	}
+
+	if (IsValid(HighlightPPActor))
+	{
+		HighlightPPActor->Destroy();
+		HighlightPPActor = nullptr;
+	}
+
+	HighlightValue = 0.0f;
+	HighlightShowProgress = 0.0f;
+
+	bHighlightFadingIn = false;
+	bHighlightFadingOut = false;
+
+	if (GetWorld() && IsValid(ScanParameterCollection))
+	{
+		UKismetMaterialLibrary::SetScalarParameterValue(
+			GetWorld(),
+			ScanParameterCollection,
+			FName("Highlight"),
+			0.0f
+		);
+	}
+}
+
+void UTAScanningComponent::StartHighlightHideTimer()
+{
+	if (!IsValid(HighlightPPActor) || !GetWorld())
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(
+		HighlightHideTimerHandle
+	);
+
+	bHighlightFadingOut = false;
+
+	// HideDelay 比 FadeTime 还短：
+	// 直接开始 FadeOut
+	if (HideDelay <= HighlightFadeTime)
+	{
+		BeginHighlightFadeOut();
+		return;
+	}
+
+	// HideDelay 的最后 HighlightFadeTime 秒开始 FadeOut
+	const float TimeBeforeFadeOut =
+		HideDelay - HighlightFadeTime;
+
+	GetWorld()->GetTimerManager().SetTimer(
+		HighlightHideTimerHandle,
+		this,
+		&UTAScanningComponent::BeginHighlightFadeOut,
+		TimeBeforeFadeOut,
+		false
+	);
+}
+
+void UTAScanningComponent::CancelHighlightHideTimer()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(
+		HighlightHideTimerHandle
+	);
+
+	if (IsValid(HighlightPPActor))
+	{
+		BeginHighlightFadeIn();
+	}
+}
+
 bool UTAScanningComponent::StartScan()
 {
 	switch (ScanState)
 	{
 		case ETAScanState::FadeOut:
 		case ETAScanState::FadedOut:
-			return UpdateScanState(ETAScanState::FadeIn, false);
+		{
+			// 如果 Highlight 正在等待 Hide，
+			// 重新扫描就取消 HideDelay
+			if (IsValid(HighlightPPActor))
+			{
+				CancelHighlightHideTimer();
+			}
+
+			return UpdateScanState(
+				ETAScanState::FadeIn,
+				false
+			);
+		}
 
 		case ETAScanState::FadeIn:
 		case ETAScanState::FadedIn:
@@ -451,7 +752,19 @@ bool UTAScanningComponent::EndScan()
 	{
 		case ETAScanState::FadeIn:
 		case ETAScanState::FadedIn:
-			return UpdateScanState(ETAScanState::FadeOut, false);
+		{
+			// Highlight 已经生成：
+			// 开始 HideDelay
+			if (IsValid(HighlightPPActor))
+			{
+				StartHighlightHideTimer();
+			}
+
+			return UpdateScanState(
+				ETAScanState::FadeOut,
+				false
+			);
+		}
 
 		case ETAScanState::FadeOut:
 		case ETAScanState::FadedOut:
