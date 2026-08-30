@@ -68,6 +68,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Scan|Settings|Highlight")
 	float HighlightFadeTime = 0.3f;
 
+	//之后技能树要修改这两个变量直接调用这个function即可，ShowDelay减小（按下扫描后物品reveal时间缩短），HideDelay增加（松开扫描后物品会花更长时间才会隐藏）
+	UFUNCTION(BlueprintCallable, Category = "Scan|Highlight")
+	void SetShowDelay(float NewShowDelay);
+
+	UFUNCTION(BlueprintCallable, Category = "Scan|Highlight")
+	void SetHideDelay(float NewHideDelay);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

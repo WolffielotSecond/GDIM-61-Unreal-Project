@@ -666,6 +666,16 @@ void UTAScanningComponent::DestroyHighlightPPActor()
 	}
 }
 
+void UTAScanningComponent::SetShowDelay(float NewShowDelay)
+{
+	ShowDelay = FMath::Max(0.0f, NewShowDelay);
+}
+
+void UTAScanningComponent::SetHideDelay(float NewHideDelay)
+{
+	HideDelay = FMath::Max(0.0f, NewHideDelay);
+}
+
 void UTAScanningComponent::StartHighlightHideTimer()
 {
 	if (!IsValid(HighlightPPActor) || !GetWorld())
