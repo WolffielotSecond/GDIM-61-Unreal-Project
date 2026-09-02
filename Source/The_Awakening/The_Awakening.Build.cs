@@ -25,7 +25,9 @@ public class The_Awakening : ModuleRules
             "SlateCore",
             "Json",
 			"JsonUtilities",
-			"Niagara"
+			"Niagara",
+			"Paper2D",
+			"PaperZD"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

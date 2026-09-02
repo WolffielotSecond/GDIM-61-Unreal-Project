@@ -7,6 +7,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PaperFlipbookComponent.h"
+#include "PaperZDAnimationComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
@@ -32,6 +34,20 @@ AThe_AwakeningCharacter::AThe_AwakeningCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	//添加flipbook的东西
+	FlipbookComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("FlipbookComponent"));
+	FlipbookComponent->SetupAttachment(GetCapsuleComponent());
+	//过滤扫描特效的主角无特效覆盖stencil
+	FlipbookComponent->SetRenderCustomDepth(true);
+	FlipbookComponent->SetCustomDepthStencilValue(1);
+
+	PaperZDAnimationComponent =
+		CreateDefaultSubobject<UPaperZDAnimationComponent>(TEXT("PaperZDAnimationComponent"));
+
+	PaperZDAnimationComponent->InitRenderComponent(FlipbookComponent);
+
+	//下面就是正常的角色移动巴拉巴拉
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -108,6 +124,7 @@ void AThe_AwakeningCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	UpdateInteractTarget();
 	UpdateMovementInput();
+	UpdateSpriteFacing();
 }
 
 void AThe_AwakeningCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -708,4 +725,28 @@ void AThe_AwakeningCharacter::OnPromptRelatedSettingsChanged()
 	{
 		PromptComponent->RefreshVisiblePrompts();
 	}
+}
+
+//2D sprite朝向问题
+void AThe_AwakeningCharacter::UpdateSpriteFacing()
+{
+	if (!FlipbookComponent)
+	{
+		return;
+	}
+
+	const FVector Forward = GetActorForwardVector();
+
+	// Actor明显朝世界Y方向时，更新角色左右视觉朝向
+	if (FMath::Abs(Forward.Y) > 0.1f)
+	{
+		SpriteFacingDirection = FMath::Sign(Forward.Y);
+	}
+
+	const float SpriteYaw =
+		SpriteFacingDirection > 0.f ? 90.f : -90.f;
+
+	FlipbookComponent->SetWorldRotation(
+		FRotator(0.f, SpriteYaw, 0.f)
+	);
 }

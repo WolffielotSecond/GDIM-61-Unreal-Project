@@ -16,6 +16,8 @@ class UTAParkourComponent;
 class UTAInventoryComponent;
 class UTAPromptComponent;
 class UTAInventoryPanelWidget;
+class UPaperFlipbookComponent;
+class UPaperZDAnimationComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -36,6 +38,14 @@ class AThe_AwakeningCharacter : public ACharacter, public IAbilitySystemInterfac
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
+
+	/** 2D角色渲染 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPaperFlipbookComponent> FlipbookComponent;
+
+	/** PaperZD动画驱动 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPaperZDAnimationComponent> PaperZDAnimationComponent;
 
 protected:
 	virtual void BeginPlay() override;
@@ -164,6 +174,14 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	bool IsInventoryOpen() const { return InventoryPanelInstance != nullptr; }
+
+	//2D的角色朝向问题
+
+	/** 2D角色当前视觉朝向，只有 -1 和 1 */
+	float SpriteFacingDirection = 1.f;
+
+	/** 更新Sprite视觉朝向 */
+	void UpdateSpriteFacing();
 
 public:
 	AThe_AwakeningCharacter();
