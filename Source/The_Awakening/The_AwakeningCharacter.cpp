@@ -734,7 +734,7 @@ void AThe_AwakeningCharacter::UpdateSpriteFacing()
 	{
 		return;
 	}
-
+	/*
 	const FVector Forward = GetActorForwardVector();
 
 	// Actor明显朝世界Y方向时，更新角色左右视觉朝向
@@ -748,5 +748,9 @@ void AThe_AwakeningCharacter::UpdateSpriteFacing()
 
 	FlipbookComponent->SetWorldRotation(
 		FRotator(0.f, SpriteYaw, 0.f)
+	);
+	*/
+	FlipbookComponent->SetWorldRotation(
+		FRotator(0.f, 90.f, 0.f)
 	);
 }

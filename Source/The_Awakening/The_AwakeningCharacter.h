@@ -174,7 +174,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	bool IsInventoryOpen() const { return InventoryPanelInstance != nullptr; }
-
+	
 	//2D的角色朝向问题
 
 	/** 2D角色当前视觉朝向，只有 -1 和 1 */
@@ -182,7 +182,7 @@ protected:
 
 	/** 更新Sprite视觉朝向 */
 	void UpdateSpriteFacing();
-
+	
 public:
 	AThe_AwakeningCharacter();
 
