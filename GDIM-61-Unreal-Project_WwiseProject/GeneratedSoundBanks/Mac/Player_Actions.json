@@ -1,0 +1,367 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "3957180562",
+    "Type": "User",
+    "GUID": "{17FEF58D-1C9F-407A-AFCB-84655721ABE8}",
+    "Language": "SFX",
+    "Hash": "{872524AD-2AEA-24F8-3BCE-FAEEC9E6CC5A}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Player_Actions",
+    "ShortName": "Player_Actions",
+    "Path": "Player_Actions.bnk",
+    "Media": [
+     {
+      "Id": "15927204",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "BA/{BAF22EF3-C525-F867-4F03-AE0D0B1189B3}.wem"
+     },
+     {
+      "Id": "126081714",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "73/{73C32A3D-8B92-A582-3A90-74B3B06523F6}.wem"
+     },
+     {
+      "Id": "144006332",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "FE/{FEF140A7-5180-5BA0-A124-6B856F532B88}.wem"
+     },
+     {
+      "Id": "146838154",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "71/{7144C86F-6961-A7F4-8B3E-E86AC8CFE3F2}.wem"
+     },
+     {
+      "Id": "213715590",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "59/{593D69BA-1B87-7230-65B9-D8AC09FC049E}.wem"
+     },
+     {
+      "Id": "218333768",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "5F/{5FFAA26F-5E86-9515-B82F-D919250DDEE4}.wem"
+     },
+     {
+      "Id": "222666662",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "48/{4847234D-34EA-5A8A-DE73-45B235EA7966}.wem"
+     },
+     {
+      "Id": "247332983",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "B1/{B1FD0B0C-8418-3DB8-F7FB-0AD2AFCB3961}.wem"
+     },
+     {
+      "Id": "258554872",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "31/{31870DAC-379D-128F-2B81-5780C2C913AC}.wem"
+     },
+     {
+      "Id": "274609913",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "7E/{7E0CB696-9B9C-DA47-2211-5BF78E98E33E}.wem"
+     },
+     {
+      "Id": "343880892",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "B0/{B094051E-F213-2D57-6C2F-33085987ABCE}.wem"
+     },
+     {
+      "Id": "519536811",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "1A/{1A601C60-2C56-0A45-D7DE-81ACB91D57CA}.wem"
+     },
+     {
+      "Id": "537629975",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "AE/{AE2E3F52-1EA5-9FDE-2768-A0087A11A0A4}.wem"
+     },
+     {
+      "Id": "575747954",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "04/{0492467D-F848-B136-BC9F-0C6F9ADDD64B}.wem"
+     },
+     {
+      "Id": "626904253",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "52/{5299D262-5BD6-50E6-C53B-F4ABBA24DE7E}.wem"
+     },
+     {
+      "Id": "745348608",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Concrete Footsteps (1).wav",
+      "CachePath": "7D/{7D8F25A8-C4CC-6DCC-6D13-6490E866A07C}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "3854155799",
+      "Name": "Play_Footsteps",
+      "ObjectPath": "\\Events\\Player Audio Events\\Movement\\Play_Footsteps",
+      "GUID": "{B22686AA-437C-428C-9015-53A0274B0F3C}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.11065748",
+      "DurationMax": "0.19728637",
+      "SwitchContainers": [
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "3865314626",
+         "Id": "841620460",
+         "GUID": "{785BE061-DB8E-43DD-B918-090310C31804}",
+         "Default": "true"
+        },
+        "MediaRefs": [
+         {
+          "Id": "15927204"
+         },
+         {
+          "Id": "126081714"
+         },
+         {
+          "Id": "144006332"
+         },
+         {
+          "Id": "146838154"
+         },
+         {
+          "Id": "213715590"
+         },
+         {
+          "Id": "218333768"
+         },
+         {
+          "Id": "222666662"
+         },
+         {
+          "Id": "247332983"
+         },
+         {
+          "Id": "258554872"
+         },
+         {
+          "Id": "274609913"
+         },
+         {
+          "Id": "343880892"
+         },
+         {
+          "Id": "519536811"
+         },
+         {
+          "Id": "537629975"
+         },
+         {
+          "Id": "575747954"
+         },
+         {
+          "Id": "626904253"
+         },
+         {
+          "Id": "745348608"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "3865314626",
+         "Id": "2654748154",
+         "GUID": "{D0C7CB7C-8801-4895-AD30-A0A8CF5C321B}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "15927204"
+         },
+         {
+          "Id": "126081714"
+         },
+         {
+          "Id": "144006332"
+         },
+         {
+          "Id": "146838154"
+         },
+         {
+          "Id": "213715590"
+         },
+         {
+          "Id": "218333768"
+         },
+         {
+          "Id": "222666662"
+         },
+         {
+          "Id": "247332983"
+         },
+         {
+          "Id": "258554872"
+         },
+         {
+          "Id": "274609913"
+         },
+         {
+          "Id": "343880892"
+         },
+         {
+          "Id": "519536811"
+         },
+         {
+          "Id": "537629975"
+         },
+         {
+          "Id": "575747954"
+         },
+         {
+          "Id": "626904253"
+         },
+         {
+          "Id": "745348608"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "3865314626",
+         "Id": "2058049674",
+         "GUID": "{ABD3D3C3-0C1F-47D8-B8DA-A42D11087AEC}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "15927204"
+         },
+         {
+          "Id": "126081714"
+         },
+         {
+          "Id": "144006332"
+         },
+         {
+          "Id": "146838154"
+         },
+         {
+          "Id": "213715590"
+         },
+         {
+          "Id": "218333768"
+         },
+         {
+          "Id": "222666662"
+         },
+         {
+          "Id": "247332983"
+         },
+         {
+          "Id": "258554872"
+         },
+         {
+          "Id": "274609913"
+         },
+         {
+          "Id": "343880892"
+         },
+         {
+          "Id": "519536811"
+         },
+         {
+          "Id": "537629975"
+         },
+         {
+          "Id": "575747954"
+         },
+         {
+          "Id": "626904253"
+         },
+         {
+          "Id": "745348608"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "SwitchGroups": [
+     {
+      "Id": "3865314626",
+      "Name": "Material",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Material",
+      "GUID": "{81C37C2A-760A-43D2-A055-65F06AEE37CF}",
+      "Switches": [
+       {
+        "Id": "841620460",
+        "Name": "Concrete",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Material\\Concrete",
+        "GUID": "{785BE061-DB8E-43DD-B918-090310C31804}"
+       },
+       {
+        "Id": "2058049674",
+        "Name": "Wood",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Material\\Wood",
+        "GUID": "{ABD3D3C3-0C1F-47D8-B8DA-A42D11087AEC}"
+       },
+       {
+        "Id": "2654748154",
+        "Name": "Water",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Material\\Water",
+        "GUID": "{D0C7CB7C-8801-4895-AD30-A0A8CF5C321B}"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{02555525-B86F-6B76-8FB9-BB1B44FF6DDD}"
+ }
+}

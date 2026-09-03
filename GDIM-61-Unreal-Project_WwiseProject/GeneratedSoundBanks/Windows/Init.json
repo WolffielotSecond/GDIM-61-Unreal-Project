@@ -41,9 +41,37 @@
       "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus",
       "GUID": "{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}"
      }
+    ],
+    "SwitchGroups": [
+     {
+      "Id": "3865314626",
+      "Name": "Material",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Material",
+      "GUID": "{81C37C2A-760A-43D2-A055-65F06AEE37CF}",
+      "Switches": [
+       {
+        "Id": "841620460",
+        "Name": "Concrete",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Material\\Concrete",
+        "GUID": "{785BE061-DB8E-43DD-B918-090310C31804}"
+       },
+       {
+        "Id": "2058049674",
+        "Name": "Wood",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Material\\Wood",
+        "GUID": "{ABD3D3C3-0C1F-47D8-B8DA-A42D11087AEC}"
+       },
+       {
+        "Id": "2654748154",
+        "Name": "Water",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Material\\Water",
+        "GUID": "{D0C7CB7C-8801-4895-AD30-A0A8CF5C321B}"
+       }
+      ]
+     }
     ]
    }
   ],
-  "FileHash": "{61976C34-6E48-DC0C-1A7F-97A25AA93A6D}"
+  "FileHash": "{6E3A6C4F-FD14-7311-0189-BB4605F79CF8}"
  }
 }

@@ -44,6 +44,569 @@
 						</Sound>
 					</ChildrenList>
 				</Folder>
+				<Folder Name="Footsteps" ID="{093DA045-9BC1-4AD5-9721-9D49952F8C04}" ShortID="819945511">
+					<ChildrenList>
+						<SwitchContainer Name="Footsteps" ID="{96E373E0-9963-461D-BF1B-7405A7720B36}" ShortID="194071617">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+								</Reference>
+								<Reference Name="DefaultSwitchOrState">
+									<ObjectRef Name="Concrete" ID="{785BE061-DB8E-43DD-B918-090310C31804}" WorkUnitID="{36603848-78D3-42D8-955E-7285ABD44C78}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+								</Reference>
+								<Reference Name="SwitchGroupOrStateGroup">
+									<ObjectRef Name="Material" ID="{81C37C2A-760A-43D2-A055-65F06AEE37CF}" WorkUnitID="{36603848-78D3-42D8-955E-7285ABD44C78}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<RandomSequenceContainer Name="Concrete" ID="{DD94FF14-A145-4DB1-890F-F391AFCF5218}" ShortID="11276725">
+									<PropertyList>
+										<Property Name="Highpass" Type="int16">
+											<ModifierList>
+												<ModifierInfo>
+													<Modifier Name="" ID="{02EA0D59-D49B-44D1-B448-7B50CD722635}">
+														<PropertyList>
+															<Property Name="Enabled" Type="bool" Value="True"/>
+															<Property Name="Max" Type="Real64" Value="15"/>
+														</PropertyList>
+													</Modifier>
+												</ModifierInfo>
+											</ModifierList>
+										</Property>
+										<Property Name="Lowpass" Type="int16">
+											<ModifierList>
+												<ModifierInfo>
+													<Modifier Name="" ID="{756B71A9-B8B8-4AFD-8280-63F06139769D}">
+														<PropertyList>
+															<Property Name="Enabled" Type="bool" Value="True"/>
+															<Property Name="Max" Type="Real64" Value="15"/>
+														</PropertyList>
+													</Modifier>
+												</ModifierInfo>
+											</ModifierList>
+										</Property>
+										<Property Name="NormalOrShuffle" Type="int16" Value="0"/>
+										<Property Name="Pitch" Type="int32">
+											<ModifierList>
+												<ModifierInfo>
+													<Modifier Name="" ID="{2BFA532D-B4FA-4D8F-8DD8-1D44F43C5FDA}">
+														<PropertyList>
+															<Property Name="Enabled" Type="bool" Value="True"/>
+															<Property Name="Max" Type="Real64" Value="50"/>
+															<Property Name="Min" Type="Real64" Value="-50"/>
+														</PropertyList>
+													</Modifier>
+												</ModifierInfo>
+											</ModifierList>
+										</Property>
+										<Property Name="RandomAvoidRepeatingCount" Type="int32" Value="2"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<Sound Name="Concrete_Footstep_1" ID="{9EAA39B0-C9E9-4DC1-80A7-A24A9B69101F}" ShortID="903563530">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{F266DDFB-3101-4AD6-9316-F4DAFEACF182}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.05939"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="0.07694"/>
+														<Property Name="TrimEnd" Type="Real64" Value="0.26368"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="745348608"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{F266DDFB-3101-4AD6-9316-F4DAFEACF182}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_3" ID="{849E8004-8BDD-46CD-B410-1230A4591B2A}" ShortID="1011783298">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{80BD87AE-1604-4BEF-9AD3-1A990EEC390B}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.03549"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="1.07737"/>
+														<Property Name="TrimEnd" Type="Real64" Value="1.22487"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="146838154"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{80BD87AE-1604-4BEF-9AD3-1A990EEC390B}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_2" ID="{1A8C6388-F68C-4B0C-A24F-353B768887CC}" ShortID="617658938">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{A449024D-7EDA-4624-8BFF-9639550F5972}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.04716"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="0.58414"/>
+														<Property Name="TrimEnd" Type="Real64" Value="0.71775"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="247332983"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{A449024D-7EDA-4624-8BFF-9639550F5972}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_8" ID="{FCFE94AF-108B-4242-ADC1-8B5FE27CC22F}" ShortID="120914535">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{C42C73E5-90BF-4DAB-8F45-13A1F9041721}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.03467"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="3.57321"/>
+														<Property Name="TrimEnd" Type="Real64" Value="3.72173"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="126081714"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{C42C73E5-90BF-4DAB-8F45-13A1F9041721}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_4" ID="{9BC3E170-84EB-4803-AE76-52542F1C8090}" ShortID="591100941">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{35E72BE7-8AB4-4CE7-A634-29D2D73E9622}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.02694"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="1.58249"/>
+														<Property Name="TrimEnd" Type="Real64" Value="1.71598"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="144006332"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{35E72BE7-8AB4-4CE7-A634-29D2D73E9622}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_5" ID="{29D107DF-F5F9-402D-9425-3D212B7CDE2F}" ShortID="112462965">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{F8FBC196-C018-479C-BFCF-84541D7E5B85}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.0256"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="2.06673"/>
+														<Property Name="TrimEnd" Type="Real64" Value="2.19848"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="258554872"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{F8FBC196-C018-479C-BFCF-84541D7E5B85}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_6" ID="{36F7C5E7-C92A-432B-A25E-6E2C4CAFE519}" ShortID="876984566">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{5D9CDD71-5C33-473F-B779-F6AEA261C805}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.03065"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="2.57883"/>
+														<Property Name="TrimEnd" Type="Real64" Value="2.7294"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="519536811"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{5D9CDD71-5C33-473F-B779-F6AEA261C805}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_7" ID="{870CD68C-97D7-4C8B-BB2F-0427A88BF59A}" ShortID="173866117">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{A42DB188-0540-4232-993D-D41D887F6F09}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.02655"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="3.07859"/>
+														<Property Name="TrimEnd" Type="Real64" Value="3.21225"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="575747954"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{A42DB188-0540-4232-993D-D41D887F6F09}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_11" ID="{A6704FF4-2867-4E76-8D00-C1F39E2845DD}" ShortID="270088202">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{74C06375-8B10-4FD8-AD65-5BD408FCE2E3}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.01711"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="5.0561"/>
+														<Property Name="TrimEnd" Type="Real64" Value="5.17"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="537629975"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{74C06375-8B10-4FD8-AD65-5BD408FCE2E3}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_9" ID="{FE7EFCC3-5AAA-4495-AC17-9A084AFC16D8}" ShortID="221860357">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{B3B1E5F2-A6A0-420A-8BB3-674292C8EC2E}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.02015"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="4.05094"/>
+														<Property Name="TrimEnd" Type="Real64" Value="4.19137"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="343880892"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{B3B1E5F2-A6A0-420A-8BB3-674292C8EC2E}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_10" ID="{59DBF47A-EA1E-46FD-A704-0097C1D0AFB6}" ShortID="321454876">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{892DAA02-468C-4C77-8C67-77CB256640A3}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.03767"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="4.54954"/>
+														<Property Name="TrimEnd" Type="Real64" Value="4.69397"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="218333768"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{892DAA02-468C-4C77-8C67-77CB256640A3}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_12" ID="{80C02A1B-9B93-419C-BCDC-6CD8CA571DF5}" ShortID="2119062">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{92D59CD1-35E6-4033-AA70-AB0A2B0F47B8}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.02892"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="5.54967"/>
+														<Property Name="TrimEnd" Type="Real64" Value="5.69692"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="626904253"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{92D59CD1-35E6-4033-AA70-AB0A2B0F47B8}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_13" ID="{657D1E71-EA34-461C-8D79-CBB00DC72F0A}" ShortID="453213025">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{E58F146C-CD2E-431D-A989-3F60570116A0}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.02362"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="6.05006"/>
+														<Property Name="TrimEnd" Type="Real64" Value="6.19191"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="213715590"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{E58F146C-CD2E-431D-A989-3F60570116A0}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_14" ID="{87B8A695-92B0-4D9C-B924-691D367A2051}" ShortID="1027403729">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{1BF90C37-F6BA-4927-AC74-ABA7846C3E42}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.08777"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="6.56207"/>
+														<Property Name="TrimEnd" Type="Real64" Value="6.75374"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="15927204"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{1BF90C37-F6BA-4927-AC74-ABA7846C3E42}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_15" ID="{AB59F3AB-4F21-4E89-BF21-16C4386D458D}" ShortID="937049120">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{CBF64DB5-6757-4FAA-B987-BA0C8716358B}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.02155"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="7.07087"/>
+														<Property Name="TrimEnd" Type="Real64" Value="7.21364"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="222666662"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{CBF64DB5-6757-4FAA-B987-BA0C8716358B}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Concrete_Footstep_16" ID="{5E95E4AF-19A5-4F5B-9151-0A968B082AD1}" ShortID="537452037">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Concrete Footsteps (1)" ID="{DAE52114-C439-4351-BE4C-F642F0FEDE18}">
+													<PropertyList>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.01665"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="7.54875"/>
+														<Property Name="TrimEnd" Type="Real64" Value="7.67847"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Concrete Footsteps (1).wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="274609913"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Concrete Footsteps (1)" ID="{DAE52114-C439-4351-BE4C-F642F0FEDE18}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+									</ChildrenList>
+								</RandomSequenceContainer>
+								<RandomSequenceContainer Name="Wood" ID="{C4949CC5-81DF-40DA-AFD8-97B9738E52F2}" ShortID="493089949">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{B3AB3F7C-63D2-46B1-9912-54D056B9900A}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{9EC93D59-41C1-44CF-B1B7-E489090CA488}"/>
+										</Reference>
+									</ReferenceList>
+								</RandomSequenceContainer>
+							</ChildrenList>
+							<GroupingInfo>
+								<GroupingBehaviorList>
+									<GroupingBehavior>
+										<ItemRef Name="Concrete" ID="{DD94FF14-A145-4DB1-890F-F391AFCF5218}"/>
+									</GroupingBehavior>
+									<GroupingBehavior>
+										<ItemRef Name="Wood" ID="{C4949CC5-81DF-40DA-AFD8-97B9738E52F2}"/>
+									</GroupingBehavior>
+								</GroupingBehaviorList>
+								<GroupingList>
+									<Grouping>
+										<SwitchRef Name="Concrete" ID="{785BE061-DB8E-43DD-B918-090310C31804}"/>
+										<ItemList>
+											<ItemRef Name="Concrete" ID="{DD94FF14-A145-4DB1-890F-F391AFCF5218}"/>
+										</ItemList>
+									</Grouping>
+									<Grouping>
+										<SwitchRef Name="Water" ID="{D0C7CB7C-8801-4895-AD30-A0A8CF5C321B}"/>
+										<ItemList>
+											<ItemRef Name="Concrete" ID="{DD94FF14-A145-4DB1-890F-F391AFCF5218}"/>
+										</ItemList>
+									</Grouping>
+									<Grouping>
+										<SwitchRef Name="Wood" ID="{ABD3D3C3-0C1F-47D8-B8DA-A42D11087AEC}"/>
+										<ItemList>
+											<ItemRef Name="Concrete" ID="{DD94FF14-A145-4DB1-890F-F391AFCF5218}"/>
+										</ItemList>
+									</Grouping>
+								</GroupingList>
+							</GroupingInfo>
+						</SwitchContainer>
+					</ChildrenList>
+				</Folder>
 			</ChildrenList>
 		</WorkUnit>
 	</Containers>

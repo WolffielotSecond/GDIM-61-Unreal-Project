@@ -10,7 +10,7 @@
     "Type": "User",
     "GUID": "{3F5A61A2-977A-4A0F-94B6-A0CE16168312}",
     "Language": "SFX",
-    "Hash": "{5F78AC13-F904-E58A-B945-30E2783708CA}",
+    "Hash": "{75F6393B-96C6-546D-36BD-BAE0959EED6E}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\Combat",
     "ShortName": "Combat",
     "Path": "Combat.bnk",
@@ -31,8 +31,8 @@
       "ObjectPath": "\\Events\\Player Audio Events\\Combat\\Knife_Hit",
       "GUID": "{6847C395-D011-47E9-BE3F-7B1A24DDDEB4}",
       "DurationType": "OneShot",
-      "DurationMin": "1.0694584",
-      "DurationMax": "1.0694584",
+      "DurationMin": "0.9256553",
+      "DurationMax": "1.2004265",
       "MediaRefs": [
        {
         "Id": "1064691980"
@@ -42,6 +42,6 @@
     ]
    }
   ],
-  "FileHash": "{7B2D3F89-EF31-1A38-FE77-61C3637F437E}"
+  "FileHash": "{3B149AEB-3CED-FBB3-8FBA-702851A597EA}"
  }
 }
