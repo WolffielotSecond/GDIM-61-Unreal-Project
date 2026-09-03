@@ -784,3 +784,16 @@ bool UTAScanningComponent::EndScan()
 
 	return false;
 }
+
+void UTAScanningComponent::UpgradeHighlight() 
+{
+	if (GetWorld() && IsValid(ScanParameterCollection))
+	{
+		UKismetMaterialLibrary::SetScalarParameterValue(
+			GetWorld(),
+			ScanParameterCollection,
+			FName("bUpgraded"),
+			1.0f
+		);
+	}
+}

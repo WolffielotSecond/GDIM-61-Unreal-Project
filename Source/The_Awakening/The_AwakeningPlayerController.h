@@ -60,6 +60,6 @@ protected:
 
 private:
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Scan", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UTAScanningComponent> ScanningComponent;
 };

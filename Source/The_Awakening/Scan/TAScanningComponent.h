@@ -75,6 +75,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Scan|Highlight")
 	void SetHideDelay(float NewHideDelay);
 
+	//升级扫描特效专用，到时候直接call这个就行
+	UFUNCTION(BlueprintCallable, Category = "Scan")
+	void UpgradeHighlight();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
