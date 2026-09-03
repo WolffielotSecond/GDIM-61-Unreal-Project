@@ -30,6 +30,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Parkour")
 	bool IsParkouring() const { return bIsParkouring; }
 
+	//用于在动画蓝图中（什么几把中文语法
+
+	UFUNCTION(BlueprintCallable, Category = "Parkour")
+	bool GetParkourFacing() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Parkour")
+	float GetParkourDuration() const { return ParkourDuration; }
+
 	void RegisterMarker(ATAParkourMarker* Marker);
 	void UnregisterMarker(ATAParkourMarker* Marker);
 

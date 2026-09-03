@@ -184,3 +184,15 @@ void UTAParkourComponent::UnregisterMarker(ATAParkourMarker* Marker)
 {
 	OverlappingMarkers.Remove(Marker);
 }
+
+bool UTAParkourComponent::GetParkourFacing() const
+{
+	if (!OwnerCharacter.IsValid())
+	{
+		return true;
+	}
+
+	const FVector PlayerLocation = OwnerCharacter->GetActorLocation();
+
+	return ParkourEnd.Y >= PlayerLocation.Y;
+}
